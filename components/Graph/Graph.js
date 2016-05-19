@@ -16,6 +16,7 @@ class Graph extends Component {
 
         this.nodes = props.nodes || [];
         this.links = props.links || [];
+        this.parentWidth = document.getElementById('root').clientWidth;
     }
 
     componentDidMount() {
@@ -48,7 +49,9 @@ class Graph extends Component {
         });
 
         this.nodes.forEach((nodeProps, index) => {
-            nodeProps.x = index * (90 + Math.floor(Math.random() * 10)) + 50;
+            nodeProps.x = Math.min(
+                index * (90 + Math.floor(Math.random() * 10)) + 50,
+                this.parentWidth - 100);
             nodeProps.y = Math.floor(Math.random() * 500);
             nodeProps.ref = 'node_' + nodeProps.id;
 
