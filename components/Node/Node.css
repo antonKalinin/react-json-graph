@@ -1,0 +1,26 @@
+.root {
+    fill: transparent;
+    stroke: #fff;
+    stroke-width: 2px;
+    cursor: move;
+}
+
+.title {
+    font-size: 14px;
+    fill: #fff;
+    stroke-width: 0;
+}
+
+.linkJoint_inner {
+    fill: #50cbe3;
+    stroke: #50cbe3;
+    stroke-width: 1;
+    cursor: pointer;
+}
+
+.linkJoint_outer {
+    fill: #333D49;
+    stroke: #fff;
+    stroke-width: 2px;
+    cursor: pointer;
+}

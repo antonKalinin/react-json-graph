@@ -1,0 +1,14 @@
+.root {
+    position: relative;
+    width: calc(100% - 4px);
+    height: 700px;
+    padding: 2px;
+
+    background: linear-gradient(0deg, rgba(255,255,255,0.05) 1px, rgba(0,0,0,0) 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, rgba(0,0,0,0) 1px),
+                transparent;
+    background-position: -1px -1px, -1px -1px;
+    background-origin: padding-box;
+    background-clip: border-box;
+    background-size: 44px 44px, 44px 44px;
+}
