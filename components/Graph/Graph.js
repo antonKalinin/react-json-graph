@@ -4,10 +4,10 @@ import d3 from 'd3';
 import styles from './Graph.css'
 
 import NodeComponent from '../Node/Node';
-import LinkComponent from '../Link/Link';
+import EdgeComponent from '../Edge/Edge';
 
 let Node = React.createFactory(NodeComponent);
-let Link = React.createFactory(LinkComponent);
+let Edge = React.createFactory(EdgeComponent);
 
 class Graph extends Component {
 
@@ -15,7 +15,7 @@ class Graph extends Component {
         super(props);
 
         this.nodes = props.nodes || [];
-        this.links = props.links || [];
+        this.edges = props.edges || [];
         this.parentWidth = document.getElementById('root').clientWidth;
     }
 
@@ -23,16 +23,16 @@ class Graph extends Component {
         this.el = ReactDOM.findDOMNode(this);
         this.d3El = d3.select(ReactDOM.findDOMNode(this));
 
-        // Draw links between nodes
-        this.links.forEach((linksProps) => {
-            let sourceNode = this.refs[`node_${linksProps.source}`];
-            let targetNode = this.refs[`node_${linksProps.target}`];
-            let link = this.refs[`link_${linksProps.source}_${linksProps.target}`];
+        // Draw edges between nodes
+        this.edges.forEach((edgesProps) => {
+            let sourceNode = this.refs[`node_${edgesProps.source}`];
+            let targetNode = this.refs[`node_${edgesProps.target}`];
+            let edge = this.refs[`edge_${edgesProps.source}_${edgesProps.target}`];
 
-            if (sourceNode && targetNode && link) {
-                link.build(sourceNode, targetNode);
-                sourceNode.addLink('output', link);
-                targetNode.addLink('input', link);
+            if (sourceNode && targetNode && edge) {
+                edge.build(sourceNode, targetNode);
+                sourceNode.addEdge('output', edge);
+                targetNode.addEdge('input', edge);
             }
         });
     }
@@ -44,8 +44,8 @@ class Graph extends Component {
     render() {
         let graph = [];
 
-        this.links.forEach((linkProps) => {
-            graph.push(Link({ref: `link_${linkProps.source}_${linkProps.target}`}));
+        this.edges.forEach((edgeProps) => {
+            graph.push(Edge({ref: `edge_${edgeProps.source}_${edgeProps.target}`}));
         });
 
         this.nodes.forEach((nodeProps, index) => {

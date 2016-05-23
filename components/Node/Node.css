@@ -5,20 +5,20 @@
     cursor: move;
 }
 
-.title {
+.label {
     font-size: 14px;
     fill: #fff;
     stroke-width: 0;
 }
 
-.linkJoint_inner {
+.edgeJoint_inner {
     fill: #50cbe3;
     stroke: #50cbe3;
     stroke-width: 1;
     cursor: pointer;
 }
 
-.linkJoint_outer {
+.edgeJoint_outer {
     fill: #333D49;
     stroke: #fff;
     stroke-width: 2px;

@@ -1,9 +1,9 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import d3 from 'd3';
-import styles from './Link.css'
+import styles from './Edge.css'
 
-class Link extends Component {
+class Edge extends Component {
 
     constructor(props) {
         super(props);
@@ -42,4 +42,4 @@ class Link extends Component {
     }
 }
 
-export default Link;
+export default Edge;

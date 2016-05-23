@@ -4,7 +4,7 @@ import styles from './ProjectManager.css'
 
 const ProjectManager = () => {
     return (
-        <div className={ styles.root }>Sample Web Service</div>
+        <div className={ styles.root }></div>
     );
 };
 

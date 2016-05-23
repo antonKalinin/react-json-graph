@@ -30,6 +30,7 @@
     "build": "webpack",
     "start": "webpack-dev-server --inline",
     "dist": "cp index.html dist/index.html; cp styles.css dist/styles.css",
-    "gh-pages": "git subtree push --prefix dist origin gh-pages"
+    "gh-pages": "git subtree push --prefix dist origin gh-pages",
+    "publish": "npm run build; npm run dist; gh-pages"
   }
 }

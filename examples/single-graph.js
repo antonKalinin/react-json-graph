@@ -1,9 +1,5 @@
-## Node UI
-
-#### Config
-
-```json
-"graph": {
+export default {
+    "graph": {
         "directed": false,
         "type": "graph type",
         "label": "graph label",
@@ -41,4 +37,4 @@
             }
         ]
     }
-```
+}

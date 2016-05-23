@@ -4,7 +4,8 @@ import { createStore } from 'redux';
 import counter from './reducers';
 
 // Sample project config
-import config from './configs/app'
+import config1 from './examples/web-service'
+import config2 from './examples/single-graph'
 
 // Components
 import ProjectManager from './components/Manager/ProjectManager';
@@ -13,6 +14,8 @@ import Graph from './components/Graph/Graph';
 
 const store = createStore(counter);
 
+let config = Math.random() > 0.5 ? config1.graph : config2.graph;
+
 const Main = () => {
     return (
         <main className='main'>
@@ -20,7 +23,7 @@ const Main = () => {
                 <AppManager store={ store } />
                 <ProjectManager store={ store } />
             </header>
-            <Graph store={ store } nodes={config.nodes} links={config.links} />
+            <Graph store={ store } nodes={config.nodes} edges={config.edges} />
         </main>
     );
 };

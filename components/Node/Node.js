@@ -14,7 +14,7 @@ class Node extends Component {
         this.x = props.x || 100;
         this.y = props.y || 100;
 
-        this.links = {
+        this.edges = {
             input: [],
             output: []
         };
@@ -78,22 +78,22 @@ class Node extends Component {
         }
 
         this.d3El.attr('transform', 'translate(' + x + ',' + y + ')');
-        this._moveLinks(x, y);
+        this._moveEdges(x, y);
     }
 
-    _moveLinks(x, y) {
-        this.links.input.forEach((link) => {
-            link.target.x = x;
-            link.target.y = y;
+    _moveEdges(x, y) {
+        this.edges.input.forEach((edge) => {
+            edge.target.x = x;
+            edge.target.y = y;
 
-            link.redraw();
+            edge.redraw();
         });
 
-        this.links.output.forEach((link) => {
-            link.source.x = x;
-            link.source.y = y;
+        this.edges.output.forEach((edge) => {
+            edge.source.x = x;
+            edge.source.y = y;
             
-            link.redraw();
+            edge.redraw();
         });
     }
 
@@ -105,10 +105,10 @@ class Node extends Component {
 
         this.el = ReactDOM.findDOMNode(this);
         this.d3El = d3.select(ReactDOM.findDOMNode(this));
-        this.titleEl = this.el.getElementsByClassName(styles.title)[0];
+        this.labelEl = this.el.getElementsByClassName(styles.label)[0];
 
-        // Calculate node width according to title width
-        this.width = this.titleEl.getBBox().width + this.radius * 2;
+        // Calculate node width according to label width
+        this.width = this.labelEl.getBBox().width + this.radius * 2;
 
         // Set graph offset according to header height
         this.graphOffsetY = document.getElementsByClassName('header')[0].clientHeight;
@@ -128,12 +128,12 @@ class Node extends Component {
         return [this.x, this.y];
     }
 
-    addLink(type, link) {
-        if (!Array.isArray(this.links[type])) return;
+    addEdge(type, edge) {
+        if (!Array.isArray(this.edges[type])) return;
 
-        this.links[type].push(link);
+        this.edges[type].push(edge);
 
-        if (this.links[type].length === 1) {
+        if (this.edges[type].length === 1) {
             let outerJointX;
             let innerJointX;
             let outerJointY = this.height / 2
@@ -145,39 +145,39 @@ class Node extends Component {
                 outerJointX = innerJointX = 1;
             }
 
-            // Outer Link Joint
+            // Outer edge Joint
             this.d3El
                 .append('circle')
-                .attr('class', styles.linkJoint_outer)
+                .attr('class', styles.edgeJoint_outer)
                 .attr("r", 4)
                 .attr("cx", outerJointX)
                 .attr("cy", outerJointY);
 
-            // Inner Link Joint
+            // Inner edge Joint
             this.d3El
                 .append('circle')
-                .attr('class', styles.linkJoint_inner)
+                .attr('class', styles.edgeJoint_inner)
                 .attr("r", 1)
                 .attr("cx", innerJointX)
                 .attr("cy", innerJointY);
         }
     }
 
-    removeLink() {
+    removeedge() {
 
     }
 
     render() {
         return (
             <g transform={`translate(${ this.x }, ${ this.y })`} className={ styles.root }>
-                <text x={ this.radius } y='25' className={ styles.title }>{this.props.title}</text>
+                <text x={ this.radius } y='25' className={ styles.label }>{this.props.label}</text>
             </g>
         );
     }
 }
 
 Node.propTypes = {
-    title: PropTypes.string.isRequired,
+    label: PropTypes.string.isRequired,
     enabled: PropTypes.bool
 };
 
