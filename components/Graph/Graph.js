@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import d3 from 'd3';
+import classNames from 'classnames/bind';
 import styles from './Graph.css'
 
 import NodeComponent from '../Node/Node';
@@ -14,14 +15,23 @@ class Graph extends Component {
     constructor(props) {
         super(props);
 
-        this.nodes = props.nodes || [];
-        this.edges = props.edges || [];
-        this.parentWidth = document.getElementById('root').clientWidth;
+        if (props.json) {
+            this._processJson(props.json);
+        }
+
+        this.parentWidth = document.body.clientWidth;
+    }
+
+    _processJson(json) {
+        this.nodes = json.nodes || [];
+        this.edges = json.edges || [];
     }
 
     componentDidMount() {
         this.el = ReactDOM.findDOMNode(this);
-        this.d3El = d3.select(ReactDOM.findDOMNode(this));
+        this.svgEl = this.refs['graph'];
+        this.d3El = d3.select(this.svgEl);
+        this.parentWidth = ReactDOM.findDOMNode(this).parentNode.clientWidth;
 
         // Draw edges between nodes
         this.edges.forEach((edgesProps) => {
@@ -41,8 +51,28 @@ class Graph extends Component {
         d3Chart.destroy(this.d3El);
     }
 
+    handleClick(event) {
+        // deselect all nodes
+        this.nodes.forEach((nodeProps, index) => {
+            let node = this.refs[`node_${nodeProps.id}`];
+
+            if (node.el === event.target.parentNode) {
+                return;
+            }
+            
+            this.refs[`node_${nodeProps.id}`].deselect();
+        });
+    }
+
     render() {
         let graph = [];
+
+        let cx = classNames.bind(styles);
+
+        let className = cx({
+            root: true,
+            root_light: true
+        });
 
         this.edges.forEach((edgeProps) => {
             graph.push(Edge({ref: `edge_${edgeProps.source}_${edgeProps.target}`}));
@@ -59,10 +89,18 @@ class Graph extends Component {
         });
 
         return (
-            <svg id="graph" className={ styles.root }>{ graph }</svg>
+            <div className={ className }>
+                <svg ref="graph" 
+                    className={ styles.svg }
+                    onClick={ this.handleClick.bind(this) }>{ graph }</svg>
+                { this.props.children }
+            </div>
         );
     }
 }
 
+Graph.propTypes = {
+    json: PropTypes.object.isRequired,
+};
 
 export default Graph;

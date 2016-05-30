@@ -1,14 +1,49 @@
 .root {
     position: relative;
+    display: flex;;
+
+    font-family: Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    box-sizing: content-box;
+    box-sizing: border-box;
+
+    text-overflow: clip;
+
+    border: none;
+    /*background: #333d49;*/
+}
+
+.root_light {
+    background: #f5f5f5;
+}
+
+.root_dark {
+    background: #1B1A1F;
+}
+
+.svg {
     width: calc(100% - 4px);
-    height: 700px;
+    height: 775px;
     padding: 2px;
 
+    background-origin: padding-box;
+    background-clip: border-box;
+    background-position: -1px -1px, -1px -1px;
+
+}
+
+.root_light .svg {
+    background: linear-gradient(0deg, rgba(0,0,0,0.05) 1px, rgba(0,0,0,0) 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.05) 1px, rgba(0,0,0,0) 1px),
+                transparent;
+
+    background-size: 44px 44px, 44px 44px;
+}
+
+.root_dark .svg {
     background: linear-gradient(0deg, rgba(255,255,255,0.05) 1px, rgba(0,0,0,0) 1px),
                 linear-gradient(90deg, rgba(255,255,255,0.05) 1px, rgba(0,0,0,0) 1px),
                 transparent;
-    background-position: -1px -1px, -1px -1px;
-    background-origin: padding-box;
-    background-clip: border-box;
+
     background-size: 44px 44px, 44px 44px;
 }

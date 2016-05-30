@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import d3 from 'd3';
+import classNames from 'classnames/bind';
 import styles from './Node.css'
 
 class Node extends Component {
@@ -22,11 +23,16 @@ class Node extends Component {
         this.dragOffsetX = 0;
         this.dragOffsetY = 0;
 
+        this.graphOffsetX = 0;
         this.graphOffsetY = 0;
 
         this.snapToGrid = true;
         this.snapDelta = 10;
         this.gridSize = 44;
+
+        this.state = {
+            isSelected: false
+        };
 
       }
 
@@ -46,14 +52,13 @@ class Node extends Component {
     _onDragStart() {
         var transforms = d3.transform(this.d3El.attr("transform"));
 
-        this.dragOffsetX = d3.event.sourceEvent.x - transforms.translate[0];
+        this.dragOffsetX = d3.event.sourceEvent.x - transforms.translate[0] - this.graphOffsetX;
         this.dragOffsetY = d3.event.sourceEvent.y - transforms.translate[1] - this.graphOffsetY;
     }
 
     _onDrag() {
-        let graphEl = document.getElementById('graph');
-        let x = Math.max(0, Math.min(graphEl.clientWidth - this.width, d3.event.x - this.dragOffsetX));
-        let y = Math.max(0, Math.min(graphEl.clientHeight - this.height - 4, d3.event.y - this.dragOffsetY));
+        let x = Math.max(0, Math.min(this.graphEl.clientWidth - this.width, d3.event.x - this.dragOffsetX));
+        let y = Math.max(0, Math.min(this.graphEl.clientHeight - this.height - 4, d3.event.y - this.dragOffsetY));
 
         if (this.snapToGrid) {
             let gridCross = this.gridSize;
@@ -98,20 +103,25 @@ class Node extends Component {
     }
 
     componentDidMount() {
-        var drag = d3.behavior
+        let drag = d3.behavior
             .drag()
             .on('dragstart', () => { this._onDragStart() })
             .on('drag', () => { this._onDrag() });
 
+
         this.el = ReactDOM.findDOMNode(this);
         this.d3El = d3.select(ReactDOM.findDOMNode(this));
         this.labelEl = this.el.getElementsByClassName(styles.label)[0];
+        this.graphEl = this.el.parentNode;
 
         // Calculate node width according to label width
         this.width = this.labelEl.getBBox().width + this.radius * 2;
 
-        // Set graph offset according to header height
-        this.graphOffsetY = document.getElementsByClassName('header')[0].clientHeight;
+        let graphPosition = this.graphEl.getBoundingClientRect();
+
+        // Set graph offset
+        this.graphOffsetX = graphPosition.left;
+        this.graphOffsetY = graphPosition.top;
 
         this.d3El.call(drag);
 
@@ -163,13 +173,27 @@ class Node extends Component {
         }
     }
 
-    removeedge() {
+    select(event) {
+        this.setState({isSelected: true});
+    }
 
+    deselect() {
+        this.setState({isSelected: false});
     }
 
     render() {
+        let cx = classNames.bind(styles);
+
+        let className = cx({
+            root: true,
+            root_selected: this.state.isSelected,
+        });
+
         return (
-            <g transform={`translate(${ this.x }, ${ this.y })`} className={ styles.root }>
+            <g transform={`translate(${ this.x }, ${ this.y })`} 
+                className={ className }
+                onClick={this.select.bind(this)}>
+
                 <text x={ this.radius } y='25' className={ styles.label }>{this.props.label}</text>
             </g>
         );
@@ -177,6 +201,8 @@ class Node extends Component {
 }
 
 Node.propTypes = {
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
     label: PropTypes.string.isRequired,
     enabled: PropTypes.bool
 };

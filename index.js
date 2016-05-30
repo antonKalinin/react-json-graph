@@ -7,29 +7,21 @@ import counter from './reducers';
 import config1 from './examples/web-service'
 import config2 from './examples/single-graph'
 
-// Components
-import ProjectManager from './components/Manager/ProjectManager';
-import AppManager from './components/Manager/AppManager';
 import Graph from './components/Graph/Graph';
+import Manager from './components/Manager/Manager';
 
 const store = createStore(counter);
 
 let config = Math.random() > 0.5 ? config1.graph : config2.graph;
 
-const Main = () => {
-    return (
-        <main className='main'>
-            <header className='header'>
-                <AppManager store={ store } />
-                <ProjectManager store={ store } />
-            </header>
-            <Graph store={ store } nodes={config.nodes} edges={config.edges} />
-        </main>
-    );
-};
-
 function render() {
-    ReactDOM.render(<Main />, document.getElementById('root'));
+    var graph = (
+        <Graph store={ store } json={ config }>
+            <Manager />
+        </Graph>
+    );
+
+    ReactDOM.render(graph, document.getElementById('container'));
 }
 
 render();

@@ -1,6 +1,10 @@
 .root {
-    stroke: #50cbe3;
+    stroke: #a77fb9;
     stroke-width: 2px;
     cursor: pointer;
     fill: transparent;
+}
+
+.root_dark {
+    stroke: #50cbe3;
 }
