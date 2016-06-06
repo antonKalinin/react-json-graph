@@ -1,22 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore } from 'redux';
-import counter from './reducers';
 
 // Sample project config
-import config1 from './examples/web-service'
-import config2 from './examples/single-graph'
+import config1 from './jsons/web-service'
+import config2 from './jsons/single-graph'
 
-import Graph from './components/Graph/Graph';
-import Manager from './components/Manager/Manager';
+import Graph from './lib';
+// You can use your own manager
+import Manager from './lib/Manager/Manager';
 
-const store = createStore(counter);
 
 let config = Math.random() > 0.5 ? config1.graph : config2.graph;
 
 function render() {
     var graph = (
-        <Graph store={ store } json={ config }>
+        <Graph json={ config }>
             <Manager />
         </Graph>
     );
@@ -25,6 +23,3 @@ function render() {
 }
 
 render();
-
-// Render in case store is changed
-store.subscribe(render);
