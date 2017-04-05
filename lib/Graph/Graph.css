@@ -1,4 +1,6 @@
 .root {
+    width: calc(100% - 4px);
+    height: 775px;
     position: relative;
     display: flex;;
 
@@ -10,7 +12,6 @@
     text-overflow: clip;
 
     border: none;
-    /*background: #333d49;*/
 }
 
 .root_light {
@@ -18,12 +19,19 @@
 }
 
 .root_dark {
-    background: #1B1A1F;
+    background: #333d49;
+}
+
+.nodes {
+    position: absolute;
+    z-index: 1000;
+    width: 100%;
+    height: 100%;
 }
 
 .svg {
-    width: calc(100% - 4px);
-    height: 775px;
+    width: 100%;
+    height: 100%;
     padding: 2px;
 
     background-origin: padding-box;
@@ -37,7 +45,7 @@
                 linear-gradient(90deg, rgba(0,0,0,0.05) 1px, rgba(0,0,0,0) 1px),
                 transparent;
 
-    background-size: 44px 44px, 44px 44px;
+    background-size: 42px 42px, 42px 42px;
 }
 
 .root_dark .svg {
@@ -45,5 +53,5 @@
                 linear-gradient(90deg, rgba(255,255,255,0.05) 1px, rgba(0,0,0,0) 1px),
                 transparent;
 
-    background-size: 44px 44px, 44px 44px;
+    background-size: 42px 42px, 42px 42px;
 }

@@ -1,44 +1,12 @@
-## Node UI
+## Raact JSON Graph
 
-#### Config
+React Component for rendering graphs in JSON Graph Format
 
-```json
-"graph": {
-        "directed": false,
-        "type": "graph type",
-        "label": "graph label",
-        "metadata": {
-            "user-defined": "values"
-        },
-        "nodes": [
-            {
-                "id": "0",
-                "type": "node type",
-                "label": "node label(0)",
-                "metadata": {
-                    "user-defined": "values"
-                }
-            },
-            {
-                "id": "1",
-                "type": "node type",
-                "label": "node label(1)",
-                "metadata": {
-                    "user-defined": "values"
-                }
-            }
-        ],
-        "edges": [
-            {
-                "source": "0",
-                "relation": "edge relationship",
-                "target": "1",
-                "directed": false,
-                "label": "edge label",
-                "metadata": {
-                    "user-defined": "values"
-                }
-            }
-        ]
-    }
+Inspired by:
+- https://github.com/jsongraph/json-graph-specification
+- https://twitter.com/tjholowaychuk/status/754836588379590656
+
+Usage:
+```
+<Graph json={ /* JSON Graph Format */ } />
 ```
