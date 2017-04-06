@@ -47,6 +47,6 @@
     "start": "webpack-dev-server --inline --content-base dist/",
     "dist": "cp index.html dist/index.html; cp styles.css dist/styles.css",
     "gh-pages": "git push origin `git subtree split --prefix docs master`:gh-pages --force",
-    "publish": "npm run build; npm run dist; npm run gh-pages"
+    "publish-pages": "npm run build; npm run dist; npm run gh-pages"
   }
 }

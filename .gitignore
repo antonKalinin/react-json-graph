@@ -1,4 +1,4 @@
 .eslintrc
 .DS_Store
-dist/bundle.min.js.map
+dist/
 node_modules
