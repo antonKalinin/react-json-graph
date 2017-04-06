@@ -1,4 +1,4 @@
-## Raact JSON Graph
+## React JSON Graph
 
 React Component for rendering graphs in JSON Graph Format
 
