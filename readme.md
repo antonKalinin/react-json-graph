@@ -9,7 +9,7 @@ Inspired by:
 - https://twitter.com/tjholowaychuk/status/754836588379590656
 
 #### Usage
-```
+```js
 <Graph json={ /* JSON Graph Format */ } />
 ```
 
@@ -17,7 +17,7 @@ Inspired by:
 
 Next JSON:
 
-```
+```js
 {
     nodes: [{
         id: '0',
