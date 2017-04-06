@@ -1,23 +1,4 @@
-## Raact JSON Graph
-
-React Component for rendering graphs in JSON Graph Format
-Demo: http://antonkalinin.github.io/react-json-graph/
-
-Inspired by:
-- https://github.com/jsongraph/json-graph-specification
-- https://twitter.com/tjholowaychuk/status/754836588379590656
-
-#### Usage
-```
-<Graph json={ /* JSON Graph Format */ } />
-```
-
-#### Example
-
-Next JSON:
-
-```
-{
+export default {
     nodes: [{
         id: '0',
         label: 'User',
@@ -49,8 +30,4 @@ Next JSON:
         {source: '2', target: '3'},
         {source: '3', target: '4'},
     ],
-}
-```
-
-will be shown as:
-
+};
