@@ -1,6 +1,7 @@
 ## Raact JSON Graph
 
 React Component for rendering graphs in JSON Graph Format
+
 Demo: http://antonkalinin.github.io/react-json-graph/
 
 Inspired by:
