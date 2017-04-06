@@ -54,3 +54,5 @@ Next JSON:
 
 will be shown as:
 
+![](https://raw.githubusercontent.com/antonKalinin/react-json-graph/master/static/graph.png)
+
