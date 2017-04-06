@@ -45,8 +45,8 @@
   "scripts": {
     "build": "webpack",
     "start": "webpack-dev-server --inline --content-base dist/",
-    "dist": "cp index.html dist/index.html; cp styles.css dist/styles.css",
-    "gh-pages": "git push origin `git subtree split --prefix docs master`:gh-pages --force",
+    "dist": "cp app/index.html dist/index.html; cp app/styles.css dist/styles.css",
+    "gh-pages": "git subtree push --prefix dist origin gh-pages",
     "publish-pages": "npm run build; npm run dist; npm run gh-pages"
   }
 }
