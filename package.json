@@ -30,14 +30,19 @@
     "webpack": "^1.12.2",
     "webpack-dev-server": "^1.12.1"
   },
+  "files": [
+    "readme.md",
+    "index.js",
+    "lib/"
+  ],
   "engine": {
     "node": ">=6.0.0"
   },
   "scripts": {
     "build": "webpack",
-    "start": "webpack-dev-server --inline",
+    "start": "webpack-dev-server --inline --content-base dist/",
     "dist": "cp index.html dist/index.html; cp styles.css dist/styles.css",
-    "gh-pages": "git subtree push --prefix dist origin gh-pages",
+    "gh-pages": "git push origin `git subtree split --prefix docs master`:gh-pages --force",
     "publish": "npm run build; npm run dist; npm run gh-pages"
   }
 }

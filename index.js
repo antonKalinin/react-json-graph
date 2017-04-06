@@ -1,20 +1,13 @@
+/* @flow */
 import React from 'react';
-import ReactDOM from 'react-dom';
+import {createStore} from 'redux';
+import {Provider} from 'react-redux';
 
-// Sample project config
-import graphJson from './jsons';
+import reducers from './lib/reducers';
+import Graph from './lib/Graph';
 
-import Graph from './lib';
-
-
-function render() {
-    const graph = (
-        <div>
-            <Graph json={graphJson} />
-        </div>
-    );
-
-    ReactDOM.render(graph, document.getElementById('container'));
-}
-
-render();
+export default (props) => (
+    <Provider store={createStore(reducers, props.json)}>
+        <Graph />
+    </Provider>
+);
