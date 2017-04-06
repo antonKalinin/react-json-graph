@@ -1,7 +1,8 @@
 {
   "name": "react-json-graph",
+  "description": "React Component for rendering graphs in JSON Graph Format",
   "version": "1.0.0",
-  "author": "antonKalinin",
+  "author": "antonKalinin <hurricanebox@gmail.com>",
   "dependencies": {
     "classnames": "^2.2.5",
     "d3": "^3.5.17",
@@ -10,6 +11,9 @@
     "react-redux": "^4.2.1",
     "redux": "^3.2.1"
   },
+  "license": "MIT",
+  "repository": "antonKalinin/react-json-graph",
+  "homepage": "http://antonkalinin.github.io/react-json-graph/",
   "devDependencies": {
     "babel-core": "^6.7.6",
     "babel-eslint": "^6.1.2",
