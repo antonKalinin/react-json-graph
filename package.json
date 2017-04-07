@@ -35,6 +35,7 @@
   "files": [
     "readme.md",
     "index.js",
+    "styles.css",
     "lib/"
   ],
   "engine": {
