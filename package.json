@@ -1,15 +1,13 @@
 {
   "name": "react-json-graph",
   "description": "React Component for rendering graphs in JSON Graph Format",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "antonKalinin <hurricanebox@gmail.com>",
   "dependencies": {
     "classnames": "^2.2.5",
     "d3": "^3.5.17",
     "react": "^15.4.2",
-    "react-dom": "^15.4.2",
-    "react-redux": "^4.2.1",
-    "redux": "^3.2.1"
+    "react-dom": "^15.4.2"
   },
   "license": "MIT",
   "repository": "antonKalinin/react-json-graph",

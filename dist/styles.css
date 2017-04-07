@@ -1,6 +1,10 @@
+html, body {
+    height: 100%;
+}
+
 body {
     width: 100%;
-    height: 100%;
+    min-height: 100%;
     margin: 0;
     padding: 0;
     font-family: Roboto, 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -34,11 +38,6 @@ header {
     color: #000;
 }
 
-.graphName {
-    color: #fff;
-    padding: 5px 0 2px 25px;
-    font-weight: 100;
-    border-bottom: 3px solid #fff;
-    width: 195px;
-    background: rgba(255,255,255,0.1);
+#container {
+    height: calc(100% - 70px);
 }
