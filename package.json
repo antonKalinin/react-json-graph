@@ -38,6 +38,14 @@
     "styles.css",
     "lib/"
   ],
+  "keywords": [
+    "react",
+    "graph",
+    "component",
+    "json",
+    "d3",
+    "network"
+  ],
   "engine": {
     "node": ">=6.0.0"
   },

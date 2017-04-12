@@ -8,18 +8,18 @@ Inspired by:
 - https://github.com/jsongraph/json-graph-specification
 - https://twitter.com/tjholowaychuk/status/754836588379590656
 
-#### Installation
+## Installation
 
 ```bash
 npm install --save react-json-graph
 ```
 
-#### Usage
+## Usage
 ```js
 <Graph json={ /* JSON Graph Format */ } />
 ```
 
-#### Example
+### Example
 
 Next JSON:
 

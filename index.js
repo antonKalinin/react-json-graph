@@ -52,19 +52,6 @@ export default class Graph extends Component {
         });
     }
 
-    handleClick(event) {
-        // deselect all nodes
-        this.props.nodes.forEach((nodeProps) => {
-            const node = this.refs[`node_${nodeProps.id}`];
-
-            if (node.el === event.target.parentNode) {
-                return;
-            }
-
-            this.refs[`node_${nodeProps.id}`].deselect();
-        });
-    }
-
     render() {
         const {nodes, edges} = this.props.json;
         const cx = classNames.bind(styles);
@@ -104,7 +91,6 @@ export default class Graph extends Component {
                 <svg
                     ref={(element) => this.svgContainer = element}
                     className={styles.svg}
-                    onClick={this.handleClick.bind(this)}
                 >
                     {
                         edges.map((edgeProps) => {
