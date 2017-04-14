@@ -1,4 +1,4 @@
-const css = require('./webpack.css.config');
+const main = require('./webpack.config');
 const demo = require('./webpack.demo.config');
 
-module.exports = [css, demo];
+module.exports = [main, demo];
