@@ -1,7 +1,7 @@
 {
   "name": "react-json-graph",
   "description": "React Component for rendering graphs in JSON Graph Format",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "author": "antonKalinin <hurricanebox@gmail.com>",
   "license": "MIT",
   "repositorry": "antonKalinin/react-json-graph",
@@ -9,9 +9,9 @@
   "bugs": {
     "url": "https://github.com/antonKalinin/react-json-graph/issues"
   },
-  "dependencies": {
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4"
+  "peerDependencies": {
+    "react": ">=0.14.0 || >=15.0.0",
+    "react-dom": ">=0.14.0 || >=15.0.0"
   },
   "devDependencies": {
     "babel-core": "^6.7.6",
@@ -52,7 +52,6 @@
   "scripts": {
     "build-css": "webpack --config webpack.css.config.js",
     "build-demo": "webpack --config webpack.demo.config.js",
-    "build-dist": "webpack --config webpack.dev.config.js",
 
     "start": "npm run dist-dir && npm run dist-copy && npm run build-dist-watch",
     "dist-dir": "rm -rf dist && mkdir dist",
