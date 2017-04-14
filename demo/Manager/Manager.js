@@ -1,7 +1,5 @@
-import React, { Component, PropTypes } from 'react';
-import ReactDOM from 'react-dom';
-import classNames from 'classnames/bind';
-import styles from './Manager.css'
+import React, {Component, PropTypes} from 'react';
+import styles from './Manager.css';
 
 let Icon = (props) => {
     let types = {
@@ -33,15 +31,8 @@ class Tab extends Component {
     }
 
     render() {
-        let cx = classNames.bind(styles);
-
-        let className = cx({
-            tab: true,
-            tab_active: this.props.active,
-        });
-
         return (
-            <div title={ this.props.title } className={ className } key={ this.props.key } onClick={ this.handleClick.bind(this) }>
+            <div title={ this.props.title } className={styles.tab} key={ this.props.key } onClick={ this.handleClick.bind(this) }>
                 <Icon type={ this.props.icon } />
                 { this.props.title }
             </div>
@@ -51,20 +42,19 @@ class Tab extends Component {
 
 const ManagerContent = () => {
     return (
-        <div className={ styles.content }>
+        <div className={styles.content}>
             <h1>Content</h1>
         </div>
     );
 };
 
 class Manager extends Component {
-
     constructor(props) {
         super();
 
         this.state = {
             activeTabId: 0,
-            isCollapsed: true
+            isCollapsed: true,
         };
 
         // this.store = this.context.store;
@@ -78,25 +68,18 @@ class Manager extends Component {
 
         this.props.items[previousActiveTabId].active = false;
         this.props.items[id].active = true;
-        this.setState({ activeTabId: id });
+        this.setState({activeTabId: id});
     }
 
     toogleManager() {
-        this.setState({ isCollapsed: !this.state.isCollapsed });
+        this.setState({isCollapsed: !this.state.isCollapsed});
     }
 
     render() {
-        let cx = classNames.bind(styles);
-
-        let className = cx({
-            root: true,
-            root_collapsed: this.state.isCollapsed,
-        });
-
         return (
-            <div className={ className }>
-                <div className={ styles.toggler } onClick={ this.toogleManager }></div>
-                <div className={ styles.inner }>
+            <div className={styles.root}>
+                <div className={styles.toggler} onClick={this.toogleManager}></div>
+                <div className={styles.inner}>
                     <Tab title='Graph' icon='graph' />
                     <ManagerContent />
                     <Tab title='Node' icon='node' />
@@ -105,7 +88,6 @@ class Manager extends Component {
             </div>
         );
     }
-
 }
 
 export default Manager;

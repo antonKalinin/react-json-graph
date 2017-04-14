@@ -3,24 +3,25 @@
   "description": "React Component for rendering graphs in JSON Graph Format",
   "version": "1.0.2",
   "author": "antonKalinin <hurricanebox@gmail.com>",
-  "dependencies": {
-    "classnames": "^2.2.5",
-    "d3": "^3.5.17",
-    "react": "^15.4.2",
-    "react-dom": "^15.4.2"
-  },
   "license": "MIT",
-  "repository": "antonKalinin/react-json-graph",
+  "repositorry": "antonKalinin/react-json-graph",
   "homepage": "http://antonkalinin.github.io/react-json-graph/",
+  "bugs": {
+    "url": "https://github.com/antonKalinin/react-json-graph/issues"
+  },
+  "dependencies": {
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4"
+  },
   "devDependencies": {
     "babel-core": "^6.7.6",
     "babel-eslint": "^6.1.2",
-    "babel-loader": "^6.2.4",
+    "babel-loader": "^6.4.1",
     "babel-plugin-transform-object-rest-spread": "^6.6.5",
     "babel-preset-es2015": "^6.6.0",
     "babel-preset-react": "^6.5.0",
     "babel-preset-stage-0": "^6.22.0",
-    "css-loader": "^0.23.1",
+    "css-loader": "^0.28.0",
     "eslint": "^2.13.1",
     "eslint-config-airbnb": "^9.0.1",
     "eslint-plugin-flowtype": "^2.20.0",
@@ -29,31 +30,36 @@
     "eslint-plugin-react": "^5.2.2",
     "flow-bin": "^0.30.0",
     "style-loader": "^0.13.1",
-    "webpack": "^1.12.2",
-    "webpack-dev-server": "^1.12.1"
+    "webpack": "^2.3.3",
+    "webpack-dev-server": "^2.4.2"
   },
   "files": [
+    "lib/",
     "readme.md",
-    "index.js",
-    "styles.css",
-    "lib/"
+    "index.js"
   ],
   "keywords": [
     "react",
     "graph",
+    "react-component",
     "component",
     "json",
-    "d3",
     "network"
   ],
   "engine": {
     "node": ">=6.0.0"
   },
   "scripts": {
-    "build": "webpack",
-    "start": "webpack-dev-server --inline --content-base dist/",
-    "dist": "cp app/index.html dist/index.html; cp app/styles.css dist/styles.css",
+    "build-css": "webpack --config webpack.css.config.js",
+    "build-demo": "webpack --config webpack.demo.config.js",
+    "build-dist": "webpack --config webpack.dev.config.js",
+
+    "start": "npm run dist-dir && npm run dist-copy && npm run build-dist-watch",
+    "dist-dir": "rm -rf dist && mkdir dist",
+    "dist-copy": "cp demo/index.html dist/index.html && cp demo/styles.css dist/styles.css",
+    "build-dist-watch": "webpack --watch --config webpack.dev.config.js",
+
     "gh-pages": "git subtree push --prefix dist origin gh-pages",
-    "publish-pages": "npm run build; npm run dist; npm run gh-pages"
+    "publish-pages": "npm run build && npm run dist && npm run gh-pages"
   }
 }
