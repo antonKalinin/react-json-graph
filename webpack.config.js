@@ -1,3 +1,5 @@
+const webpack = require('webpack');
+
 const reactExternal = {
     root: 'React',
     commonjs2: 'react',
@@ -14,7 +16,7 @@ const reactDOMExternal = {
 
 module.exports = {
     devtool: 'eval',
-    entry: './lib/Graph/index.js',
+    entry: './src/Graph/index.js',
     externals: {
         react: reactExternal,
         'react-dom': reactDOMExternal,
@@ -48,4 +50,9 @@ module.exports = {
             },
         ],
     },
+    plugins: [
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify('production'),
+        }),
+    ],
 };

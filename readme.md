@@ -15,13 +15,11 @@ npm install --save react-json-graph
 ```
 
 ## Usage
-```js
-<Graph json={ /* JSON Graph Format */ } />
+```jsx
+<Graph json={{nodes: [...], edges: [...]}} /> // JSON Graph Format
 ```
 
-### Example
-
-Next JSON:
+### Example of JSON
 
 ```js
 {
@@ -58,10 +56,6 @@ Next JSON:
     ],
 }
 ```
-
-will be shown as:
-
-![](https://raw.githubusercontent.com/antonKalinin/react-json-graph/master/static/graph.png)
 
 ## License
 
