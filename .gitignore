@@ -1,5 +1,6 @@
 .eslintrc
 .DS_Store
-./index.js
 dist
 node_modules
+/index.js
+
