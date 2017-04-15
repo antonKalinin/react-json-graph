@@ -2,6 +2,8 @@
 
 React Component for rendering graphs in JSON Graph Format
 
+![](https://raw.githubusercontent.com/antonKalinin/react-json-graph/master/static/usage.gif)
+
 Demo: http://antonkalinin.github.io/react-json-graph/
 
 Inspired by:
