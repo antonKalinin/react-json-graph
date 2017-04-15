@@ -59,6 +59,11 @@ npm install --save react-json-graph
 }
 ```
 
+#### TODO Plan
+1. Export current graph state to JSON
+2. Zoom graph
+3. Modify graph (add/delete nodes and edges)
+
 ## License
 
   [MIT](LICENSE)
