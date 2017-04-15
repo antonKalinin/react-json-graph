@@ -54,7 +54,8 @@
     "build": "webpack --config webpack.config.js",
     "build-example": "webpack --config webpack.example.config.js",
 
-    "start": "npm run dist-dir && npm run dist-copy && npm run build-dist-watch",
+    "start": "npm run dist && npm run build-dist-watch",
+    "dist": "npm run dist-dir && npm run dist-copy",
     "dist-dir": "rm -rf dist && mkdir dist",
     "dist-copy": "cp example/index.html dist/index.html && cp example/styles.css dist/styles.css",
     "build-dist-watch": "webpack --watch --config webpack.dev.config.js",
@@ -62,7 +63,6 @@
     "release-patch": "npm run build && npm version patch && npm publish",
     "release-minor": "npm run build && npm version minor && npm publish",
 
-    "gh-pages": "git subtree push --prefix dist origin gh-pages",
-    "publish-pages": "npm run build && npm run dist && npm run gh-pages"
+    "release-gh-pages": "npm run dist && ./gh-pages.sh"
   }
 }
