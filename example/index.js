@@ -3,4 +3,13 @@ import ReactDOM from 'react-dom';
 import graphJson from './jsons';
 import Graph from '../index';
 
-ReactDOM.render(<Graph json={graphJson} />, document.getElementById('container'));
+let graph = null;
+
+ReactDOM.render(
+    <Graph
+        onChange={(json) => { console.log(json); }}
+        ref={(component) => { graph = component; }}
+        json={graphJson}
+    />,
+    document.getElementById('container')
+);

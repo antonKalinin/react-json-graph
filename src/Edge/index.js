@@ -19,6 +19,13 @@ class Edge extends Component {
         };
     }
 
+    toJSON() {
+        return {
+            source: this.sourceId,
+            target: this.targetId,
+        };
+    }
+
     build(source, target) {
         this.source = source;
         this.target = target;

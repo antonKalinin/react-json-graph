@@ -20,6 +20,8 @@ class Node extends Component {
         height: PropTypes.number,
         getGraph: PropTypes.func,
         snapToGrid: PropTypes.bool,
+
+        onChange: PropTypes.func,
     }
 
     constructor(props) {
@@ -31,6 +33,7 @@ class Node extends Component {
         this.snapDelta = 10;
 
         this.state = {
+            id: props.id,
             label: props.label,
             x: props.x,
             y: props.y,
@@ -109,9 +112,15 @@ class Node extends Component {
         this.setState({edges});
     }
 
-    addInput() {}
+    toJSON() {
+        const {id, label, x, y} = this.state;
 
-    addOutput() {}
+        return {
+            id,
+            label,
+            position: {x, y},
+        };
+    }
 
     /* Event Handlers */
 
@@ -136,7 +145,13 @@ class Node extends Component {
     }
 
     _onMouseUp(event) {
+        const {onChange} = this.props;
+
         this.setState({isDragging: false});
+
+        if (typeof onChange === 'function') {
+            onChange(this.toJSON());
+        }
 
         event.stopPropagation();
         event.preventDefault();

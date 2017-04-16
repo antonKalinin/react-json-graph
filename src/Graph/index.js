@@ -9,6 +9,7 @@ export default class Graph extends Component {
 
     static propTypes = {
         json: PropTypes.object,
+        onChange: PropTypes.func,
     }
 
     constructor(props) {
@@ -17,6 +18,10 @@ export default class Graph extends Component {
         this.parentWidth = document.body.clientWidth;
         this.nodeComponents = [];
         this.edgeComponents = [];
+
+        this.state = {
+            json: props.json,
+        };
     }
 
     componentDidMount() {
@@ -37,8 +42,34 @@ export default class Graph extends Component {
         });
     }
 
+    _onChange(nextNode, nextEdge) {
+        const {json} = this.state;
+        const {onChange} = this.props;
+
+        if (nextNode) {
+            json.nodes = json.nodes.map((node) => (node.id === nextNode.id ? nextNode : node));
+        }
+
+        if (nextEdge) {
+            json.edges = json.edges.map((edge) => (edge.id === nextEdge.id ? nextEdge : edge));
+        }
+
+        if (typeof onChange === 'function') {
+            onChange(json);
+        }
+
+        this.setState(json);
+    }
+
+    toJSON() {
+        return {
+            nodes: this.nodeComponents.map(nodeComponent => nodeComponent.toJSON()),
+            edges: this.edgeComponents.map(edgeComponent => edgeComponent.toJSON()),
+        };
+    }
+
     render() {
-        const {nodes, edges} = this.props.json;
+        const {nodes, edges} = this.state.json;
 
         const getNodePosition = (node, index) => ({
             x: (node.position && node.position.x) || Math.min(index * (90 + Math.floor(Math.random() * 10)) + 50, this.parentWidth - 100),
@@ -63,6 +94,7 @@ export default class Graph extends Component {
                                 key: `node_${nodeProps.id}`,
                                 ref: (component) => this.nodeComponents.push(component),
                                 getGraph: () => this.graphContainer,
+                                onChange: (nodeJSON) => { this._onChange(nodeJSON) },
                                 ...getNodePosition(nodeProps, index),
                                 ...nodeProps,
                             };

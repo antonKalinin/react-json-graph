@@ -18,8 +18,13 @@ npm install --save react-json-graph
 
 ## Usage
 ```jsx
-<Graph json={{nodes: [...], edges: [...]}} /> // JSON Graph Format
+<Graph
+    json={{nodes: [...], edges: [...]}}
+    onChange={(newGraphJSON) => {}}
+/>
 ```
+
+- ```onChange``` calls when graph structure or node position has been changed, accepts new graph JSON as only parameter
 
 ### Example of JSON
 
@@ -58,11 +63,6 @@ npm install --save react-json-graph
     ],
 }
 ```
-
-#### TODO Plan
-1. Export current graph state to JSON
-2. Zoom graph
-3. Modify graph (add/delete nodes and edges)
 
 ## License
 

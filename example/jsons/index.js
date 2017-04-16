@@ -13,10 +13,6 @@ export default {
         id: '2',
         label: 'Frontend',
         position: {x: 400, y: 150},
-        inputs: {
-            id: '1',
-            label: 'HTTP',
-        },
     },
     {
         id: '3',
