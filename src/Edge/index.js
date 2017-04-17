@@ -1,11 +1,15 @@
 import React, {Component, PropTypes} from 'react';
 import styles from './edge.css';
 
+const strokeWidth = 1;
+
 class Edge extends Component {
 
     static propTypes = {
         sourceId: PropTypes.string.isRequired,
         targetId: PropTypes.string.isRequired,
+
+        zoom: PropTypes.number,
     }
 
     constructor(props) {
@@ -16,7 +20,17 @@ class Edge extends Component {
 
         this.state = {
             path: null,
+            zoom: props.zoom,
         };
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const {zoom} = this.state;
+
+        if (nextProps.zoom && nextProps.zoom !== zoom) {
+            this.setState({zoom: nextProps.zoom}, () => { this.redraw(); });
+
+        }
     }
 
     toJSON() {
@@ -41,9 +55,10 @@ class Edge extends Component {
     }
 
     horizontalLinkPath(source, target) {
-        const sourceX = source.x + source.width;
-        const sourceY = source.y + source.height / 2;
-        const targetY = target.y + target.height / 2;
+        const {zoom} = this.state;
+        const sourceX = source.x + source.width * zoom;
+        const sourceY = source.y + (source.height * zoom / 2);
+        const targetY = target.y + (target.height * zoom / 2);
 
         return 'M' + sourceX + ',' + sourceY
             + 'C' + (sourceX + target.x) / 2 + ',' + sourceY
@@ -66,7 +81,17 @@ class Edge extends Component {
     }
 
     render() {
-        return <path className={styles.root} d={this.state.path}></path>;
+        const {zoom} = this.state;
+
+        return (
+            <path
+                style={{
+                    strokeWidth: strokeWidth * zoom,
+                }}
+                className={styles.root}
+                d={this.state.path}
+            />
+        );
     }
 }
 

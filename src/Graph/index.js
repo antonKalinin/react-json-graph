@@ -5,11 +5,23 @@ import Edge from '../Edge';
 
 import styles from './graph.css';
 
-export default class Graph extends Component {
+const maxZoom = 2;
+const minZoom = 1;
+const zoomStep = 0.1;
 
+export default class Graph extends Component {
     static propTypes = {
+        width: PropTypes.number,
+        height: PropTypes.number,
         json: PropTypes.object,
+        zoom: PropTypes.number,
         onChange: PropTypes.func,
+    }
+
+    static defaultProps = {
+        zoom: 1,
+        width: 1000,
+        height: 800,
     }
 
     constructor(props) {
@@ -21,6 +33,11 @@ export default class Graph extends Component {
 
         this.state = {
             json: props.json,
+            zoom: Math.max(minZoom, Math.min(props.zoom, maxZoom)),
+            viewOffsetX: 0,
+            viewOffsetY: 0,
+
+            isDragging: false,
         };
     }
 
@@ -42,6 +59,12 @@ export default class Graph extends Component {
         });
     }
 
+    componentWillUpdate(nextProps, nextState) {
+        if (nextState.zoom) {
+            nextState.zoom = Math.max(minZoom, Math.min(nextState.zoom, maxZoom));
+        }
+    }
+
     _onChange(nextNode, nextEdge) {
         const {json} = this.state;
         const {onChange} = this.props;
@@ -61,6 +84,46 @@ export default class Graph extends Component {
         this.setState(json);
     }
 
+    _onWhell(event) {
+        const {zoom} = this.state;
+
+        this.setState({
+            zoom: zoom + (event.deltaY > 0 ? -1 : 1) * zoomStep,
+        });
+    }
+
+    _onMouseDown(event) {
+        this.setState({isDragging: true});
+    }
+
+    _onMouseMove(event) {
+        const {isDragging, viewOffsetX, viewOffsetY, zoom} = this.state;
+
+        if (!isDragging) {
+            return;
+        }
+
+        const {width, height} = this.props;
+        const {movementX, movementY} = event;
+        const maxNegativeOffsetX = width - width * zoom;
+        const maxNegativeOffsetY = height - height * zoom;
+
+        let nextViewOffsetX = viewOffsetX + movementX;
+        let nextViewOffsetY = viewOffsetY + movementY;
+
+        nextViewOffsetX = nextViewOffsetX < maxNegativeOffsetX ? maxNegativeOffsetX : (nextViewOffsetX > 0 ? 0 : nextViewOffsetX);
+        nextViewOffsetY = nextViewOffsetY < maxNegativeOffsetY ? maxNegativeOffsetY : (nextViewOffsetY > 0 ? 0 : nextViewOffsetY);
+
+        this.setState({
+            viewOffsetX: nextViewOffsetX,
+            viewOffsetY: nextViewOffsetY,
+        });
+    }
+
+    _onMouseUp(event) {
+        this.setState({isDragging: false});
+    }
+
     toJSON() {
         return {
             nodes: this.nodeComponents.map(nodeComponent => nodeComponent.toJSON()),
@@ -69,59 +132,80 @@ export default class Graph extends Component {
     }
 
     render() {
+        const {width, height} = this.props;
+        const {zoom, viewOffsetX, viewOffsetY, isDragging} = this.state;
         const {nodes, edges} = this.state.json;
 
-        const getNodePosition = (node, index) => ({
-            x: (node.position && node.position.x) || Math.min(index * (90 + Math.floor(Math.random() * 10)) + 50, this.parentWidth - 100),
-            y: (node.position && node.position.y) || Math.floor(Math.random() * 500),
+        const getNodePosition = (node) => ({
+            x: node.position && node.position.x * zoom || 100,
+            y: node.position && node.position.y * zoom || 100,
         });
 
         this.nodeComponents = [];
         this.edgeComponents = [];
 
         return (
-            <div
-                className={`${styles.root} ${styles.root_light}`}
-                ref={(element) => { this.graphContainer = element; }}
+            <div 
+                className={`${styles.container}`}
+                style={{width, height}}
             >
                 <div
-                    className={styles.nodes}
-                    ref={(element) => { this.htmlContainer = element; }}
+                    className={`${styles.root} ${styles.root_light}`}
+                    style={{
+                        width: width * maxZoom,
+                        height: height * maxZoom,
+                        marginLeft: viewOffsetX,
+                        marginTop: viewOffsetY,
+                        cursor: isDragging ? 'move' : 'default',
+                    }}
+                    ref={(element) => { this.graphContainer = element; }}
+                    onWheel={(event) => { this._onWhell(event.nativeEvent); }}
+                    onMouseDown={(event) => { this._onMouseDown(event.nativeEvent); }}
+                    onMouseMove={(event) => { this._onMouseMove(event.nativeEvent); }}
+                    onMouseUp={(event) => { this._onMouseUp(event.nativeEvent); }}
                 >
-                    {
-                        nodes.map((nodeProps, index) => {
-                            const props = {
-                                key: `node_${nodeProps.id}`,
-                                ref: (component) => this.nodeComponents.push(component),
-                                getGraph: () => this.graphContainer,
-                                onChange: (nodeJSON) => { this._onChange(nodeJSON) },
-                                ...getNodePosition(nodeProps, index),
-                                ...nodeProps,
-                            };
+                
+                    <div
+                        className={styles.nodes}
+                        ref={(element) => { this.htmlContainer = element; }}
+                    >
+                        {
+                            nodes.map((nodeProps, index) => {
+                                const props = {
+                                    zoom,
+                                    key: `node_${nodeProps.id}`,
+                                    ref: (component) => this.nodeComponents.push(component),
+                                    getGraph: () => this.graphContainer,
+                                    onChange: (nodeJSON) => { this._onChange(nodeJSON) },
+                                    ...getNodePosition(nodeProps),
+                                    ...nodeProps,
+                                };
 
-                            return <Node {...props} />;
-                        })
-                    }
+                                return <Node {...props} />;
+                            })
+                        }
+                    </div>
+                    <svg
+                        ref={(element) => { this.svgContainer = element; }}
+                        className={styles.svg}
+                    >
+                        {
+                            edges.map((edgeProps) => {
+                                const id = `edge_${edgeProps.source}_${edgeProps.target}`;
+
+                                return (
+                                    <Edge
+                                        key={id}
+                                        zoom={zoom}
+                                        ref={(component) => this.edgeComponents.push(component)}
+                                        sourceId={edgeProps.source}
+                                        targetId={edgeProps.target}
+                                    />
+                                );
+                            })
+                        }
+                    </svg>
                 </div>
-                <svg
-                    ref={(element) => { this.svgContainer = element; }}
-                    className={styles.svg}
-                >
-                    {
-                        edges.map((edgeProps) => {
-                            const id = `edge_${edgeProps.source}_${edgeProps.target}`;
-
-                            return (
-                                <Edge
-                                    key={id}
-                                    ref={(component) => this.edgeComponents.push(component)}
-                                    sourceId={edgeProps.source}
-                                    targetId={edgeProps.target}
-                                />
-                            );
-                        })
-                    }
-                </svg>
             </div>
         );
     }

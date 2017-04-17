@@ -13,11 +13,9 @@
 }
 
 .label {
-    padding: 10px 0;
     margin-bottom: 10px;
     text-align: center;
     font-weight: 700;
-    font-size: 14px;
     color: #222;
 }
 
@@ -32,11 +30,9 @@
 }
 
 .edgeJoint_input {
-    margin: 10px 0;
 }
 
 .edgeJoint_ouput {
-    margin: 10px 0;
     text-align: right;
 }
 
@@ -51,8 +47,6 @@
 .edgeJointPoint {
     display: inline-block;
     vertical-align: middle;
-    width: 5px;
-    height: 5px;
     background: #000;
     border-radius: 50%;
     cursor: pointer;

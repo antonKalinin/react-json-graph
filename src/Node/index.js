@@ -1,13 +1,16 @@
 /* @flow */
-import React, {Component, PropTypes} from 'react';
+import React, {PureComponent, PropTypes} from 'react';
 import styles from './node.css';
 
-class Node extends Component {
+const fontSize = 7;
+const innerOffset = 5;
+
+class Node extends PureComponent {
     static defaultProps = {
         x: 200,
         y: 200,
-        width: 160,
-        height: 35,
+        width: 80,
+        height: 17,
         gridSize: 20,
     }
 
@@ -16,6 +19,8 @@ class Node extends Component {
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
         label: PropTypes.string.isRequired,
+
+        zoom: PropTypes.number,
         width: PropTypes.number,
         height: PropTypes.number,
         getGraph: PropTypes.func,
@@ -43,6 +48,9 @@ class Node extends Component {
                 input: [],
                 output: [],
             },
+            zoom: props.zoom,
+            minZoom: 1,
+            maxZoom: 2,
             mouseDownOffset: {x: 0, y: 0},
             isDragging: false,
             isCompactView: true,
@@ -50,6 +58,25 @@ class Node extends Component {
 
         this._onMouseUp = this._onMouseUp.bind(this);
         this._onMouseMove = this._onMouseMove.bind(this);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const {zoom, minZoom, maxZoom, x, y} = this.state;
+
+        if (nextProps.zoom && nextProps.zoom !== zoom) {
+            const zoomStep = nextProps.zoom - zoom;
+            const zoomDelta = nextProps.zoom - 1 - zoomStep;
+            const zoomSteps = Math.abs((maxZoom - minZoom) / zoomStep);
+
+            const originX = x * zoomSteps / (zoomSteps + zoomDelta * zoomSteps);
+            const originY = y * zoomSteps / (zoomSteps + zoomDelta * zoomSteps);
+
+            this.setState({
+                zoom: nextProps.zoom,
+                x: x + originX * zoomStep,
+                y: y + originY * zoomStep,
+            });
+        }
     }
 
     componentDidUpdate(props, state) {
@@ -192,6 +219,9 @@ class Node extends Component {
     }
 
     renderJoint(type, edge) {
+        const jointWidth = 3;
+        const jointHeight = 3;
+        const {zoom, height} = this.state;
         const className = type === 'input' ? styles.edgeJoint_input : styles.edgeJoint_ouput;
         let label = null;
 
@@ -203,16 +233,25 @@ class Node extends Component {
             label = edge.sourceId.label || type;
         }
 
+        const Joint = (
+            <span
+                style={{
+                    marginTop: height * zoom / 2 - (jointHeight * zoom) / 3,
+                    width: Math.round(jointWidth * zoom),
+                    height: Math.round(jointHeight * zoom),
+                }}
+                className={styles.edgeJointPoint}
+            />
+        );
+
         return (
             <div
                 key={`joint_${type}_${edge.sourceId}_${edge.targetId}`}
                 className={className}
             >
-                {type === 'input' && <span className={styles.edgeJointPoint} />}
-                {label &&
-                    <span>{label}</span>
-                }
-                {type === 'output' && <span className={styles.edgeJointPoint} />}
+                {type === 'input' && Joint}
+                {label && <span>{label}</span>}
+                {type === 'output' && Joint}
             </div>
         );
     }
@@ -223,6 +262,7 @@ class Node extends Component {
             y,
             width,
             height,
+            zoom,
             label,
             edges,
             isDragging,
@@ -245,8 +285,9 @@ class Node extends Component {
                 style={{
                     left: x,
                     top: y,
-                    width,
-                    height,
+                    width: width * zoom,
+                    height: height * zoom,
+                    fontSize: Math.round(fontSize * zoom),
                 }}
                 onMouseDown={(event) => this._onMouseDown(event)}
             >
@@ -258,7 +299,15 @@ class Node extends Component {
                         {inputs.map((edge) => this.renderJoint('input', edge))}
                     </div>
                     {isCompactView && Boolean(label) &&
-                        <div className={styles.label}>{label}</div>
+                        <div
+                            className={styles.label}
+                            style={{
+                                paddingTop: innerOffset * zoom,
+                                paddingBottom: innerOffset * zoom,
+                            }}
+                        >
+                            {label}
+                        </div>
                     }
                     <div className={styles.interfaces}>
                         {outputs.map((edge) => this.renderJoint('output', edge))}
