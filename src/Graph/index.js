@@ -5,23 +5,27 @@ import Edge from '../Edge';
 
 import styles from './graph.css';
 
-const maxZoom = 2;
-const minZoom = 1;
-const zoomStep = 0.1;
+const SCALE_MAX = 1;
+const SCALE_MIN = 0.3;
+const SCALE_STEP = 0.1;
 
 export default class Graph extends Component {
     static propTypes = {
         width: PropTypes.number,
         height: PropTypes.number,
         json: PropTypes.object,
-        zoom: PropTypes.number,
+        scale: PropTypes.number,
         onChange: PropTypes.func,
+        style: PropTypes.object,
     }
 
     static defaultProps = {
-        zoom: 1,
-        width: 1000,
-        height: 800,
+        scale: 1,
+        minScale: 1,
+        maxScale: 1,
+        width: 600,
+        height: 400,
+        style: {},
     }
 
     constructor(props) {
@@ -31,11 +35,23 @@ export default class Graph extends Component {
         this.nodeComponents = [];
         this.edgeComponents = [];
 
+        const minScale = props.minScale ? Math.max(props.minScale, SCALE_MIN) : SCALE_MIN;
+        const maxScale = props.maxScale ? Math.min(props.maxScale, SCALE_MAX) : SCALE_MAX;
+
+        const viewOffsetX = props.width * (minScale - maxScale);
+        const viewOffsetY = props.height * (minScale - maxScale);
+
         this.state = {
             json: props.json,
-            zoom: Math.max(minZoom, Math.min(props.zoom, maxZoom)),
-            viewOffsetX: 0,
-            viewOffsetY: 0,
+
+            minScale,
+            maxScale,
+            scale: Math.max(minScale, Math.min(props.scale, maxScale)),
+
+            viewOffsetX,
+            viewOffsetY,
+            viewOffsetOriginX: viewOffsetX,
+            viewOffsetOriginY: viewOffsetY,
 
             isDragging: false,
         };
@@ -60,8 +76,10 @@ export default class Graph extends Component {
     }
 
     componentWillUpdate(nextProps, nextState) {
-        if (nextState.zoom) {
-            nextState.zoom = Math.max(minZoom, Math.min(nextState.zoom, maxZoom));
+        const {minScale, maxScale} = this.state;
+
+        if (nextState.scale) {
+            nextState.scale = Math.max(minScale, Math.min(nextState.scale, maxScale));
         }
     }
 
@@ -85,34 +103,75 @@ export default class Graph extends Component {
     }
 
     _onWhell(event) {
-        const {zoom} = this.state;
+        const {
+            scale,
+            minScale,
+            maxScale,
+            viewOffsetX,
+            viewOffsetY,
+            viewOffsetOriginX,
+            viewOffsetOriginY,
+        } = this.state;
 
-        this.setState({
-            zoom: zoom + (event.deltaY > 0 ? -1 : 1) * zoomStep,
-        });
+        const direction = event.deltaY > 0 ? -1 : 1;
+        const nextScale = parseFloat((scale + direction * SCALE_STEP).toPrecision(2));
+        const scaleDelta = (scale - minScale) / SCALE_STEP;
+
+        if (nextScale > maxScale || nextScale < minScale) {
+            return;
+        }
+
+        this.setState(Object.assign({scale: nextScale}, scaleDelta ? {
+            viewOffsetX: viewOffsetX - (Math.abs(viewOffsetOriginX) - Math.abs(viewOffsetX)) / scaleDelta,
+            viewOffsetY: viewOffsetY - (Math.abs(viewOffsetOriginY) - Math.abs(viewOffsetY)) / scaleDelta,
+        } : null));
     }
 
     _onMouseDown(event) {
+        // only left mouse button
+        if (event.button !== 0) return;
+
         this.setState({isDragging: true});
     }
 
     _onMouseMove(event) {
-        const {isDragging, viewOffsetX, viewOffsetY, zoom} = this.state;
+        const {
+            scale,
+            maxScale,
+            minScale,
+            viewOffsetX,
+            viewOffsetY,
+            isDragging,
+            viewOffsetOriginX,
+            viewOffsetOriginY,
+        } = this.state;
 
         if (!isDragging) {
             return;
         }
 
-        const {width, height} = this.props;
+        
+        let scaleK = 0; // If scale => scaleMin then scaleK => 1;
+
+        if (maxScale - minScale !== 0) {
+            scaleK = (maxScale - scale) / (maxScale - minScale);
+        }
+
         const {movementX, movementY} = event;
-        const maxNegativeOffsetX = width - width * zoom;
-        const maxNegativeOffsetY = height - height * zoom;
 
         let nextViewOffsetX = viewOffsetX + movementX;
         let nextViewOffsetY = viewOffsetY + movementY;
 
-        nextViewOffsetX = nextViewOffsetX < maxNegativeOffsetX ? maxNegativeOffsetX : (nextViewOffsetX > 0 ? 0 : nextViewOffsetX);
-        nextViewOffsetY = nextViewOffsetY < maxNegativeOffsetY ? maxNegativeOffsetY : (nextViewOffsetY > 0 ? 0 : nextViewOffsetY);
+        const minX = scaleK * viewOffsetOriginX;
+        const minY = scaleK * viewOffsetOriginY;
+        const maxX = viewOffsetOriginX / (minScale / scale);
+        const maxY = viewOffsetOriginY / (minScale / scale);
+
+        nextViewOffsetX = nextViewOffsetX > minX ? minX : nextViewOffsetX;
+        nextViewOffsetY = nextViewOffsetY > minY ? minY : nextViewOffsetY;
+
+        nextViewOffsetX = nextViewOffsetX < maxX ? maxX : nextViewOffsetX;
+        nextViewOffsetY = nextViewOffsetY < maxY ? maxY : nextViewOffsetY;
 
         this.setState({
             viewOffsetX: nextViewOffsetX,
@@ -132,13 +191,13 @@ export default class Graph extends Component {
     }
 
     render() {
-        const {width, height} = this.props;
-        const {zoom, viewOffsetX, viewOffsetY, isDragging} = this.state;
+        const {width, height, style} = this.props;
+        const {scale, minScale, viewOffsetX, viewOffsetY, isDragging} = this.state;
         const {nodes, edges} = this.state.json;
 
         const getNodePosition = (node) => ({
-            x: node.position && node.position.x * zoom || 100,
-            y: node.position && node.position.y * zoom || 100,
+            x: node.position && node.position.x || 100,
+            y: node.position && node.position.y || 100,
         });
 
         this.nodeComponents = [];
@@ -150,14 +209,17 @@ export default class Graph extends Component {
                 style={{width, height}}
             >
                 <div
-                    className={`${styles.root} ${styles.root_light}`}
-                    style={{
-                        width: width * maxZoom,
-                        height: height * maxZoom,
+                    className={`${styles.root}`}
+                    style={Object.assign(style, {
+                        width: width / minScale,
+                        height: height / minScale,
                         marginLeft: viewOffsetX,
                         marginTop: viewOffsetY,
                         cursor: isDragging ? 'move' : 'default',
-                    }}
+                        transform: `scale(${scale})`,
+                        transition: `transform .1s linear${isDragging ? '' : ', margin .1s linear'}`,
+                        transformOrigin: `${width}px ${height}px`,
+                    })}
                     ref={(element) => { this.graphContainer = element; }}
                     onWheel={(event) => { this._onWhell(event.nativeEvent); }}
                     onMouseDown={(event) => { this._onMouseDown(event.nativeEvent); }}
@@ -170,9 +232,9 @@ export default class Graph extends Component {
                         ref={(element) => { this.htmlContainer = element; }}
                     >
                         {
-                            nodes.map((nodeProps, index) => {
+                            nodes.map((nodeProps) => {
                                 const props = {
-                                    zoom,
+                                    scale,
                                     key: `node_${nodeProps.id}`,
                                     ref: (component) => this.nodeComponents.push(component),
                                     getGraph: () => this.graphContainer,
@@ -196,7 +258,7 @@ export default class Graph extends Component {
                                 return (
                                     <Edge
                                         key={id}
-                                        zoom={zoom}
+                                        scale={scale}
                                         ref={(component) => this.edgeComponents.push(component)}
                                         sourceId={edgeProps.source}
                                         targetId={edgeProps.target}

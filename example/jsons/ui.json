@@ -1,0 +1,351 @@
+{
+    "nodes": [{
+        "id": "NSObject",
+        "label": "NSObject",
+        "position": {
+            "x": 840,
+            "y": 700
+        }
+    }, {
+        "id": "UIAcceleration",
+        "label": "UIAcceleration",
+        "position": {
+            "x": 1400,
+            "y": 404
+        }
+    }, {
+        "id": "UIAccelerometer",
+        "label": "UIAccelerometer",
+        "position": {
+            "x": 1400,
+            "y": 365
+        }
+    }, {
+        "id": "UIAccessibilityElement",
+        "label": "UIAccessibilityElement",
+        "position": {
+            "x": 1400,
+            "y": 326
+        }
+    }, {
+        "id": "UIBartItem",
+        "label": "UIBartItem",
+        "position": {
+            "x": 1400,
+            "y": 287
+        }
+    }, {
+        "id": "UIBezierPath",
+        "label": "UIBezierPath",
+        "position": {
+            "x": 1400,
+            "y": 246
+        }
+    }, {
+        "id": "UIColor",
+        "label": "UIColor",
+        "position": {
+            "x": 1400,
+            "y": 205
+        }
+    }, {
+        "id": "UIDevice",
+        "label": "UIDevice",
+        "position": {
+            "x": 1400,
+            "y": 166
+        }
+    }, {
+        "id": "UIDocumentInteratcionController",
+        "label": "UIDocumentInteratcionController",
+        "position": {
+            "x": 1400,
+            "y": 125
+        }
+    }, {
+        "id": "UIEvent",
+        "label": "UIEvent",
+        "position": {
+            "x": 1400,
+            "y": 85
+        }
+    }, {
+        "id": "UIFont",
+        "label": "UIFont",
+        "position": {
+            "x": 1400,
+            "y": 444
+        }
+    }, {
+        "id": "UIGestureRecognizer",
+        "label": "UIGestureRecognizer",
+        "position": {
+            "x": 1400,
+            "y": 483
+        }
+    }, {
+        "id": "UIImage",
+        "label": "UIImage",
+        "position": {
+            "x": 1400,
+            "y": 525
+        }
+    }, {
+        "id": "UILocalizedIndexedCollation",
+        "label": "UILocalizedIndexedCollation",
+        "position": {
+            "x": 1400,
+            "y": 565
+        }
+    }, {
+        "id": "UILocalNotification",
+        "label": "UILocalNotification",
+        "position": {
+            "x": 1400,
+            "y": 605
+        }
+    }, {
+        "id": "UIMenuController",
+        "label": "UIMenuController",
+        "position": {
+            "x": 1400,
+            "y": 646
+        }
+    }, {
+        "id": "UIMenuItem",
+        "label": "UIMenuItem",
+        "position": {
+            "x": 1400,
+            "y": 685
+        }
+    }, {
+        "id": "UINavigationItem",
+        "label": "UINavigationItem",
+        "position": {
+            "x": 1400,
+            "y": 724
+        }
+    }, {
+        "id": "UINib",
+        "label": "UINib",
+        "position": {
+            "x": 1400,
+            "y": 764
+        }
+    }, {
+        "id": "UIPasteboard",
+        "label": "UIPasteboard",
+        "position": {
+            "x": 1400,
+            "y": 803
+        }
+    }, {
+        "id": "UIPopoverController",
+        "label": "UIPopoverController",
+        "position": {
+            "x": 1400,
+            "y": 843
+        }
+    }, {
+        "id": "UIPrintFormatter",
+        "label": "UIPrintFormatter",
+        "position": {
+            "x": 1400,
+            "y": 883
+        }
+    }, {
+        "id": "UIPrintInfo",
+        "label": "UIPrintInfo",
+        "position": {
+            "x": 1400,
+            "y": 923
+        }
+    }, {
+        "id": "UIPringIteractionController",
+        "label": "UIPringIteractionController",
+        "position": {
+            "x": 1400,
+            "y": 963
+        }
+    }, {
+        "id": "UIPrintPageRenderer",
+        "label": "UIPrintPageRenderer",
+        "position": {
+            "x": 1400,
+            "y": 1005
+        }
+    }, {
+        "id": "UIPrintPager",
+        "label": "UIPrintPager",
+        "position": {
+            "x": 1400,
+            "y": 1044
+        }
+    }, {
+        "id": "UIResponder",
+        "label": "UIResponder",
+        "position": {
+            "x": 1400,
+            "y": 1083
+        }
+    }, {
+        "id": "UIScreen",
+        "label": "UIScreen",
+        "position": {
+            "x": 1400,
+            "y": 1122
+        }
+    }, {
+        "id": "UIScreenMode",
+        "label": "UIScreenMode",
+        "position": {
+            "x": 1400,
+            "y": 1164
+        }
+    }, {
+        "id": "UISearchDisplayController",
+        "label": "UISearchDisplayController",
+        "position": {
+            "x": 1400,
+            "y": 1204
+        }
+    }, {
+        "id": "UITextChecker",
+        "label": "UITextChecker",
+        "position": {
+            "x": 1400,
+            "y": 1242
+        }
+    }, {
+        "id": "UITtextInputStringTokenizer",
+        "label": "UITtextInputStringTokenizer",
+        "position": {
+            "x": 1400,
+            "y": 1283
+        }
+    }, {
+        "id": "UITextPosition",
+        "label": "UITextPosition",
+        "position": {
+            "x": 1400,
+            "y": 1323
+        }
+    }, {
+        "id": "UITextRange",
+        "label": "UITextRange",
+        "position": {
+            "x": 1400,
+            "y": 1365
+        }
+    }, {
+        "id": "UITouch",
+        "label": "UITouch",
+        "position": {
+            "x": 1400,
+            "y": 1405
+        }
+    }],
+    "edges": [{
+        "source": "NSObject",
+        "target": "UIAcceleration"
+    }, {
+        "source": "NSObject",
+        "target": "UIAccelerometer"
+    }, {
+        "source": "NSObject",
+        "target": "UIAccessibilityElement"
+    }, {
+        "source": "NSObject",
+        "target": "UIBartItem"
+    }, {
+        "source": "NSObject",
+        "target": "UIBezierPath"
+    }, {
+        "source": "NSObject",
+        "target": "UIColor"
+    }, {
+        "source": "NSObject",
+        "target": "UIDevice"
+    }, {
+        "source": "NSObject",
+        "target": "UIDocumentInteratcionController"
+    }, {
+        "source": "NSObject",
+        "target": "UIEvent"
+    }, {
+        "source": "NSObject",
+        "target": "UIFont"
+    }, {
+        "source": "NSObject",
+        "target": "UIGestureRecognizer"
+    }, {
+        "source": "NSObject",
+        "target": "UIImage"
+    }, {
+        "source": "NSObject",
+        "target": "UILocalizedIndexedCollation"
+    }, {
+        "source": "NSObject",
+        "target": "UILocalNotification"
+    }, {
+        "source": "NSObject",
+        "target": "UIMenuController"
+    }, {
+        "source": "NSObject",
+        "target": "UIMenuItem"
+    }, {
+        "source": "NSObject",
+        "target": "UINavigationItem"
+    }, {
+        "source": "NSObject",
+        "target": "UINib"
+    }, {
+        "source": "NSObject",
+        "target": "UIPasteboard"
+    }, {
+        "source": "NSObject",
+        "target": "UIPopoverController"
+    }, {
+        "source": "NSObject",
+        "target": "UIPrintFormatter"
+    }, {
+        "source": "NSObject",
+        "target": "UIPrintInfo"
+    }, {
+        "source": "NSObject",
+        "target": "UIPringIteractionController"
+    }, {
+        "source": "NSObject",
+        "target": "UIPrintPageRenderer"
+    }, {
+        "source": "NSObject",
+        "target": "UIPrintPager"
+    }, {
+        "source": "NSObject",
+        "target": "UIResponder"
+    }, {
+        "source": "NSObject",
+        "target": "UIScreen"
+    }, {
+        "source": "NSObject",
+        "target": "UIScreenMode"
+    }, {
+        "source": "NSObject",
+        "target": "UISearchDisplayController"
+    }, {
+        "source": "NSObject",
+        "target": "UITextChecker"
+    }, {
+        "source": "NSObject",
+        "target": "UITtextInputStringTokenizer"
+    }, {
+        "source": "NSObject",
+        "target": "UITextPosition"
+    }, {
+        "source": "NSObject",
+        "target": "UITextRange"
+    }, {
+        "source": "NSObject",
+        "target": "UITouch"
+    }]
+}

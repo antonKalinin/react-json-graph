@@ -1,17 +1,13 @@
 /* @flow */
-import React, {PureComponent, PropTypes} from 'react';
+import React, {Component, PropTypes} from 'react';
 import styles from './node.css';
 
-const fontSize = 7;
-const innerOffset = 5;
-
-class Node extends PureComponent {
+class Node extends Component {
     static defaultProps = {
         x: 200,
         y: 200,
-        width: 80,
-        height: 17,
-        gridSize: 20,
+        width: 160,
+        height: 35,
     }
 
     static propTypes = {
@@ -20,7 +16,7 @@ class Node extends PureComponent {
         y: PropTypes.number.isRequired,
         label: PropTypes.string.isRequired,
 
-        zoom: PropTypes.number,
+        scale: PropTypes.number,
         width: PropTypes.number,
         height: PropTypes.number,
         getGraph: PropTypes.func,
@@ -48,10 +44,7 @@ class Node extends PureComponent {
                 input: [],
                 output: [],
             },
-            zoom: props.zoom,
-            minZoom: 1,
-            maxZoom: 2,
-            mouseDownOffset: {x: 0, y: 0},
+            scale: props.scale,
             isDragging: false,
             isCompactView: true,
         };
@@ -60,22 +53,20 @@ class Node extends PureComponent {
         this._onMouseMove = this._onMouseMove.bind(this);
     }
 
+    componentDidMount() {
+        const {width} = this.state;
+        const labelWidth = this.labelEl.clientWidth;
+
+        if (width - 30 < labelWidth) {
+            this.setState({width: labelWidth + 30});
+        }
+    }
+
     componentWillReceiveProps(nextProps) {
-        const {zoom, minZoom, maxZoom, x, y} = this.state;
+        const {scale} = this.state;
 
-        if (nextProps.zoom && nextProps.zoom !== zoom) {
-            const zoomStep = nextProps.zoom - zoom;
-            const zoomDelta = nextProps.zoom - 1 - zoomStep;
-            const zoomSteps = Math.abs((maxZoom - minZoom) / zoomStep);
-
-            const originX = x * zoomSteps / (zoomSteps + zoomDelta * zoomSteps);
-            const originY = y * zoomSteps / (zoomSteps + zoomDelta * zoomSteps);
-
-            this.setState({
-                zoom: nextProps.zoom,
-                x: x + originX * zoomStep,
-                y: y + originY * zoomStep,
-            });
+        if (nextProps.scale && nextProps.scale !== scale) {
+            this.setState({scale: nextProps.scale});
         }
     }
 
@@ -152,20 +143,10 @@ class Node extends PureComponent {
     /* Event Handlers */
 
     _onMouseDown(event) {
-        const graph = this.getGraph();
-        const {x, y} = this.state;
         // only left mouse button
         if (event.button !== 0) return;
 
-        const mouseDownOffset = {
-            x: event.pageX - graph.offsetLeft - x,
-            y: event.pageY - graph.offsetTop - y,
-        };
-
-        this.setState({
-            isDragging: true,
-            mouseDownOffset,
-        });
+        this.setState({isDragging: true});
 
         event.stopPropagation();
         event.preventDefault();
@@ -186,20 +167,20 @@ class Node extends PureComponent {
 
     _onMouseMove(event) {
         const graph = this.getGraph();
-        const {width, height, mouseDownOffset, isDragging} = this.state;
-
-        // TODO Add snap to grid
+        const {x, y, width, height, scale, isDragging} = this.state;
 
         if (!isDragging) return;
 
-        const x = event.pageX - graph.offsetLeft - mouseDownOffset.x;
-        const y = event.pageY - graph.offsetTop - mouseDownOffset.y;
+        const nextX = x + event.movementX / scale;
+        const nextY = y + event.movementY / scale;
 
-        if (x < 0 || y < 0 || x + width > graph.width || y + height > graph.height) {
+        if (nextX < 0 || nextY < 0 ||
+            nextX + width > graph.width ||
+            nextY + height > graph.height) {
             return;
         }
 
-        this.setState({x, y});
+        this.setState({x: nextX, y: nextY});
         this.moveEdges();
 
         event.stopPropagation();
@@ -219,9 +200,6 @@ class Node extends PureComponent {
     }
 
     renderJoint(type, edge) {
-        const jointWidth = 3;
-        const jointHeight = 3;
-        const {zoom, height} = this.state;
         const className = type === 'input' ? styles.edgeJoint_input : styles.edgeJoint_ouput;
         let label = null;
 
@@ -233,16 +211,7 @@ class Node extends PureComponent {
             label = edge.sourceId.label || type;
         }
 
-        const Joint = (
-            <span
-                style={{
-                    marginTop: height * zoom / 2 - (jointHeight * zoom) / 3,
-                    width: Math.round(jointWidth * zoom),
-                    height: Math.round(jointHeight * zoom),
-                }}
-                className={styles.edgeJointPoint}
-            />
-        );
+        const Joint = (<span className={styles.edgeJointPoint} />);
 
         return (
             <div
@@ -262,7 +231,6 @@ class Node extends PureComponent {
             y,
             width,
             height,
-            zoom,
             label,
             edges,
             isDragging,
@@ -285,9 +253,8 @@ class Node extends PureComponent {
                 style={{
                     left: x,
                     top: y,
-                    width: width * zoom,
-                    height: height * zoom,
-                    fontSize: Math.round(fontSize * zoom),
+                    width,
+                    height,
                 }}
                 onMouseDown={(event) => this._onMouseDown(event)}
             >
@@ -300,11 +267,8 @@ class Node extends PureComponent {
                     </div>
                     {isCompactView && Boolean(label) &&
                         <div
+                            ref={(element) => { this.labelEl = element; }}
                             className={styles.label}
-                            style={{
-                                paddingTop: innerOffset * zoom,
-                                paddingBottom: innerOffset * zoom,
-                            }}
                         >
                             {label}
                         </div>

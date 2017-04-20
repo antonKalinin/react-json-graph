@@ -1,4 +1,5 @@
 .root {
+    stroke-width: 2px;
     stroke: #50cbe3;
     cursor: pointer;
     fill: transparent;
