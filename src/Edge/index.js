@@ -42,8 +42,8 @@ class Edge extends Component {
 
     horizontalLinkPath(source, target) {
         const sourceX = source.x + source.width;
-        const sourceY = source.y + source.height / 2;
-        const targetY = target.y + target.height / 2;
+        const sourceY = source.y + (source.height / 2);
+        const targetY = target.y + (target.height / 2);
 
         return 'M' + sourceX + ',' + sourceY
             + 'C' + (sourceX + target.x) / 2 + ',' + sourceY
@@ -66,7 +66,9 @@ class Edge extends Component {
     }
 
     render() {
-        return <path className={styles.root} d={this.state.path}></path>;
+        return (
+            <path className={styles.root} d={this.state.path} />
+        );
     }
 }
 

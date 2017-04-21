@@ -24,7 +24,24 @@ npm install --save react-json-graph
 />
 ```
 
-- ```onChange``` calls when graph structure or node position has been changed, accepts new graph JSON as only parameter
+#### Props
+
+- `width: Number` (**required**) width of the graph
+
+- `height: Number` (**required**) height of the graph, required
+
+- `json: Object` graph representation in JSON with two keys: `nodes` and `edges`. See example below.
+
+- `scale: Number` (default: **1**) current scale of graph
+
+- `minScale: Number` (default: **1**) minimum value of scale, for now can not be less then **0.3**
+
+- `maxScale: Number` (default: **1**)  maximum value of scale, for now can not be greater then **1**
+
+- `style: Object` styles of graph (styles for nodes and edges will be added in future)
+
+- `onChange: Function` calls when graph structure or node position has been changed, accepts new graph JSON as only parameter
+
 
 ### Example of JSON
 

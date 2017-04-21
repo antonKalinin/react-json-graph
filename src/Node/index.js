@@ -8,7 +8,6 @@ class Node extends Component {
         y: 200,
         width: 160,
         height: 35,
-        gridSize: 20,
     }
 
     static propTypes = {
@@ -16,6 +15,8 @@ class Node extends Component {
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
         label: PropTypes.string.isRequired,
+
+        scale: PropTypes.number,
         width: PropTypes.number,
         height: PropTypes.number,
         getGraph: PropTypes.func,
@@ -43,13 +44,30 @@ class Node extends Component {
                 input: [],
                 output: [],
             },
-            mouseDownOffset: {x: 0, y: 0},
+            scale: props.scale,
             isDragging: false,
             isCompactView: true,
         };
 
         this._onMouseUp = this._onMouseUp.bind(this);
         this._onMouseMove = this._onMouseMove.bind(this);
+    }
+
+    componentDidMount() {
+        const {width} = this.state;
+        const labelWidth = this.labelEl.clientWidth;
+
+        if (width - 30 < labelWidth) {
+            this.setState({width: labelWidth + 30});
+        }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const {scale} = this.state;
+
+        if (nextProps.scale && nextProps.scale !== scale) {
+            this.setState({scale: nextProps.scale});
+        }
     }
 
     componentDidUpdate(props, state) {
@@ -125,20 +143,10 @@ class Node extends Component {
     /* Event Handlers */
 
     _onMouseDown(event) {
-        const graph = this.getGraph();
-        const {x, y} = this.state;
         // only left mouse button
         if (event.button !== 0) return;
 
-        const mouseDownOffset = {
-            x: event.pageX - graph.offsetLeft - x,
-            y: event.pageY - graph.offsetTop - y,
-        };
-
-        this.setState({
-            isDragging: true,
-            mouseDownOffset,
-        });
+        this.setState({isDragging: true});
 
         event.stopPropagation();
         event.preventDefault();
@@ -159,20 +167,20 @@ class Node extends Component {
 
     _onMouseMove(event) {
         const graph = this.getGraph();
-        const {width, height, mouseDownOffset, isDragging} = this.state;
-
-        // TODO Add snap to grid
+        const {x, y, width, height, scale, isDragging} = this.state;
 
         if (!isDragging) return;
 
-        const x = event.pageX - graph.offsetLeft - mouseDownOffset.x;
-        const y = event.pageY - graph.offsetTop - mouseDownOffset.y;
+        const nextX = x + event.movementX / scale;
+        const nextY = y + event.movementY / scale;
 
-        if (x < 0 || y < 0 || x + width > graph.width || y + height > graph.height) {
+        if (nextX < 0 || nextY < 0 ||
+            nextX + width > graph.width ||
+            nextY + height > graph.height) {
             return;
         }
 
-        this.setState({x, y});
+        this.setState({x: nextX, y: nextY});
         this.moveEdges();
 
         event.stopPropagation();
@@ -203,16 +211,16 @@ class Node extends Component {
             label = edge.sourceId.label || type;
         }
 
+        const Joint = (<span className={styles.edgeJointPoint} />);
+
         return (
             <div
                 key={`joint_${type}_${edge.sourceId}_${edge.targetId}`}
                 className={className}
             >
-                {type === 'input' && <span className={styles.edgeJointPoint} />}
-                {label &&
-                    <span>{label}</span>
-                }
-                {type === 'output' && <span className={styles.edgeJointPoint} />}
+                {type === 'input' && Joint}
+                {label && <span>{label}</span>}
+                {type === 'output' && Joint}
             </div>
         );
     }
@@ -258,7 +266,12 @@ class Node extends Component {
                         {inputs.map((edge) => this.renderJoint('input', edge))}
                     </div>
                     {isCompactView && Boolean(label) &&
-                        <div className={styles.label}>{label}</div>
+                        <div
+                            ref={(element) => { this.labelEl = element; }}
+                            className={styles.label}
+                        >
+                            {label}
+                        </div>
                     }
                     <div className={styles.interfaces}>
                         {outputs.map((edge) => this.renderJoint('output', edge))}
