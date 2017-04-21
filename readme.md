@@ -1,5 +1,7 @@
 ## React JSON Graph
 
+[![npm version](https://badge.fury.io/js/react-json-graph.svg)](https://badge.fury.io/js/react-json-graph)
+
 React Component for rendering graphs in JSON Graph Format
 
 ![](https://raw.githubusercontent.com/antonKalinin/react-json-graph/master/static/usage.gif)
@@ -19,6 +21,8 @@ npm install --save react-json-graph
 ## Usage
 ```jsx
 <Graph
+    width={600}
+    height={400}
     json={{nodes: [...], edges: [...]}}
     onChange={(newGraphJSON) => {}}
 />
