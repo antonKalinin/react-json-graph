@@ -1,28 +1,15 @@
-import React, {Component} from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
-import graphJson from './jsons/ui.json';
-import Graph from '../index';
-import Manager from './Manager';
+import App from './App';
 
-class App extends Component {
-    render() {
-        const width = document.body.clientWidth;
-        const height = document.body.clientHeight - 60;
+import {createStore} from 'redux';
+import {Provider} from 'react-redux';
+import reducers from './reducers';
 
-        return (
-            <div style={{height: '100%'}}>
-                {/*<Manager />*/}
-                <Graph
-                    onChange={(json) => { console.log(JSON.stringify(json)); }}
-                    json={graphJson}
-                    scale={0.5}
-                    minScale={0.5}
-                    width={width}
-                    height={height}
-                />
-            </div>
-        );
-    }
-}
+const app = (
+    <Provider store={createStore(reducers)}>
+        <App />
+    </Provider>
+);
 
-ReactDOM.render(<App />, document.getElementById('container'));
+ReactDOM.render(app, document.getElementById('container'));

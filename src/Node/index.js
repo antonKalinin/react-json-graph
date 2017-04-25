@@ -12,6 +12,7 @@ class Node extends Component {
 
     static propTypes = {
         id: PropTypes.string.isRequired,
+        hash: PropTypes.string.isRequired,
         x: PropTypes.number.isRequired,
         y: PropTypes.number.isRequired,
         label: PropTypes.string.isRequired,
@@ -34,17 +35,11 @@ class Node extends Component {
         this.snapDelta = 10;
 
         this.state = {
-            id: props.id,
-            label: props.label,
-            x: props.x,
-            y: props.y,
-            width: props.width,
-            height: props.height,
+            ...this.propsToState(props),
             edges: {
                 input: [],
                 output: [],
             },
-            scale: props.scale,
             isDragging: false,
             isCompactView: true,
         };
@@ -63,10 +58,20 @@ class Node extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const {scale} = this.state;
+        const {scale, label} = this.state;
 
         if (nextProps.scale && nextProps.scale !== scale) {
             this.setState({scale: nextProps.scale});
+        }
+
+        if (nextProps.label !== label) {
+            this.setState({
+                ...this.propsToState(nextProps),
+                edges: {
+                    input: [],
+                    output: [],
+                },
+            });
         }
     }
 
@@ -107,6 +112,16 @@ class Node extends Component {
         const {width, height} = this.state;
 
         return {width, height};
+    }
+
+    propsToState(props) {
+        return Object.keys(props).reduce((result, propName) => {
+            if (typeof props[propName] !== 'function') {
+                result[propName] = props[propName];
+            }
+
+            return result;
+        }, {});
     }
 
     addEdge(type, edge) {

@@ -1,0 +1,12 @@
+.title {
+    color: #fff;
+    font-size: 30px;
+    padding-bottom: 10px;
+}
+
+.description, .instructions {
+    color: #fff;
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 100;
+}
