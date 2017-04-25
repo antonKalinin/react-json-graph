@@ -3,6 +3,7 @@
 set -e
 
 git checkout gh-pages
+git pull origin master
 npm run build
 npm run build-example
 cp dist/*.* .
