@@ -35,7 +35,9 @@
     "postcss-loader": "^1.3.3",
     "react": ">=15.0.0",
     "react-dom": ">=15.0.0",
+    "react-redux": "^5.0.4",
     "react-toolbox": "^2.0.0-beta.8",
+    "redux": "^3.6.0",
     "sass-loader": "^6.0.3",
     "style-loader": "^0.13.1",
     "webpack": "^2.3.3",
@@ -67,5 +69,8 @@
     "release-patch": "npm run build && npm version patch && npm publish",
     "release-minor": "npm run build && npm version minor && npm publish",
     "release-gh-pages": "npm run dist && ./gh-pages.sh"
+  },
+  "dependencies": {
+    "hash.js": "^1.0.3"
   }
 }

@@ -9,33 +9,28 @@
 }
 
 .root {
-    position: absolute;
-    bottom: 50px;
-    right: 60px;
-    width: 100px;
-    z-index: 2000;
-
-
     box-sizing: border-box;
-    max-width: 400px;
-    margin: 0;
-    padding: 0;
-
-    transition: max-width .15s ease-out;
+    margin: 30px 0 50px;
 }
 
-.root_collapsed {
-    max-width: 44px;
-
-    transition: max-width .25s ease-in;
+.examplesTitle {
+    color: #fff;
+    font-weight: 400;
 }
 
-.root_collapsed .content {
-    display: none;
+.radio div {
+    border: 2px solid #50cbe3;
 }
 
-.inner {
-    overflow: hidden;
+.radio div:before {
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.radio span {
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: 100;
+    letter-spacing: 0.1em;
 }
 
 .zoom {
