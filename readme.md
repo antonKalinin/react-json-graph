@@ -20,6 +20,8 @@ npm install --save react-json-graph
 
 ## Usage
 ```jsx
+import Graph from 'react-json-graph';
+
 <Graph
     width={600}
     height={400}
