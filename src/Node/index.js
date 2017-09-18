@@ -1,8 +1,70 @@
 /* @flow */
-import React, {Component, PropTypes} from 'react';
+/* global document */
+
+import React, {Component} from 'react';
+import type {Node as ReactNode, SyntheticMouseEvent, HTMLDivElement} from 'react';
 import styles from './node.css';
 
-class Node extends Component {
+import type {Graph, Edge} from '../types';
+
+type NodeJson = {
+    id: string,
+    label: string,
+    position: {
+        x: number,
+        y: number,
+    },
+};
+
+type GraphRect = {
+    width: number,
+    height: number,
+    offsetTop: number,
+    offsetLeft: number,
+};
+
+type Props = {
+    id: string,
+    x: number,
+    y: number,
+    scale: number,
+    label: string,
+    width: ?number,
+    height: ?number,
+
+    getGraph: () => Graph,
+    onChange: ?(NodeJson) => void,
+};
+
+type State = {
+    id: string,
+    x: number,
+    y: number,
+    scale: number,
+    label: string,
+    width: number,
+    height: number,
+
+    edges: {
+        input: Array<Edge>,
+        output: Array<Edge>,
+    },
+    isDragging: boolean,
+    isCompactView: boolean,
+};
+
+export default class Node extends Component<Props, State> {
+    id: string;
+
+    _onMouseUp: () => void;
+    _onMouseDown: (SyntheticMouseEvent<>) => void;
+    _onMouseMove: () => void;
+
+    getGraph: () => ?GraphRect;
+    moveEdges: () => void;
+    renderJoint: (type: string, edge: Edge) => ReactNode;
+    labelEl: HTMLDivElement;
+
     static defaultProps = {
         x: 200,
         y: 200,
@@ -10,32 +72,19 @@ class Node extends Component {
         height: 35,
     }
 
-    static propTypes = {
-        id: PropTypes.string.isRequired,
-        hash: PropTypes.string.isRequired,
-        x: PropTypes.number.isRequired,
-        y: PropTypes.number.isRequired,
-        label: PropTypes.string.isRequired,
-
-        scale: PropTypes.number,
-        width: PropTypes.number,
-        height: PropTypes.number,
-        getGraph: PropTypes.func,
-        snapToGrid: PropTypes.bool,
-
-        onChange: PropTypes.func,
-    }
-
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
 
         this.id = props.id;
 
-        this.snapToGrid = props.snapToGrid;
-        this.snapDelta = 10;
-
         this.state = {
-            ...this.propsToState(props),
+            id: props.id,
+            x: props.x,
+            y: props.y,
+            scale: props.scale,
+            label: props.label,
+            width: props.width || Node.defaultProps.width,
+            height: props.height || Node.defaultProps.height,
             edges: {
                 input: [],
                 output: [],
@@ -57,7 +106,7 @@ class Node extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps(nextProps: Props) {
         const {scale, label} = this.state;
 
         if (nextProps.scale && nextProps.scale !== scale) {
@@ -66,7 +115,13 @@ class Node extends Component {
 
         if (nextProps.label !== label) {
             this.setState({
-                ...this.propsToState(nextProps),
+                id: nextProps.id,
+                x: nextProps.x,
+                y: nextProps.y,
+                scale: nextProps.scale,
+                label: nextProps.label,
+                width: nextProps.width || Node.defaultProps.width,
+                height: nextProps.height || Node.defaultProps.height,
                 edges: {
                     input: [],
                     output: [],
@@ -75,7 +130,7 @@ class Node extends Component {
         }
     }
 
-    componentDidUpdate(props, state) {
+    componentDidUpdate(props: Props, state: State) {
         if (this.state.isDragging && !state.isDragging) {
             document.addEventListener('mousemove', this._onMouseMove);
             document.addEventListener('mouseup', this._onMouseUp);
@@ -85,7 +140,7 @@ class Node extends Component {
         }
     }
 
-    getGraph() {
+    getGraph(): ?GraphRect {
         const graph = this.props.getGraph();
 
         if (!graph) {
@@ -114,17 +169,7 @@ class Node extends Component {
         return {width, height};
     }
 
-    propsToState(props) {
-        return Object.keys(props).reduce((result, propName) => {
-            if (typeof props[propName] !== 'function') {
-                result[propName] = props[propName];
-            }
-
-            return result;
-        }, {});
-    }
-
-    addEdge(type, edge) {
+    addEdge(type: string, edge: Edge) {
         const {edges} = this.state;
         let isCompactView = this.state.isCompactView;
 
@@ -145,7 +190,7 @@ class Node extends Component {
         this.setState({edges});
     }
 
-    toJSON() {
+    toJSON(): NodeJson {
         const {id, label, x, y} = this.state;
 
         return {
@@ -157,7 +202,7 @@ class Node extends Component {
 
     /* Event Handlers */
 
-    _onMouseDown(event) {
+    _onMouseDown(event: SyntheticMouseEvent<>) {
         // only left mouse button
         if (event.button !== 0) return;
 
@@ -167,7 +212,7 @@ class Node extends Component {
         event.preventDefault();
     }
 
-    _onMouseUp(event) {
+    _onMouseUp(event: SyntheticMouseEvent<>) {
         const {onChange} = this.props;
 
         this.setState({isDragging: false});
@@ -180,14 +225,14 @@ class Node extends Component {
         event.preventDefault();
     }
 
-    _onMouseMove(event) {
+    _onMouseMove(event: SyntheticMouseEvent<>) {
         const graph = this.getGraph();
         const {x, y, width, height, scale, isDragging} = this.state;
 
-        if (!isDragging) return;
+        if (!isDragging || !graph) return;
 
-        const nextX = x + event.movementX / scale;
-        const nextY = y + event.movementY / scale;
+        const nextX = x + (event.movementX / scale);
+        const nextY = y + (event.movementY / scale);
 
         if (nextX < 0 || nextY < 0 ||
             nextX + width > graph.width ||
@@ -214,7 +259,7 @@ class Node extends Component {
         });
     }
 
-    renderJoint(type, edge) {
+    renderJoint(type: string, edge: Edge): ReactNode {
         const className = type === 'input' ? styles.edgeJoint_input : styles.edgeJoint_ouput;
         let label = null;
 
@@ -271,14 +316,14 @@ class Node extends Component {
                     width,
                     height,
                 }}
-                onMouseDown={(event) => this._onMouseDown(event)}
+                onMouseDown={(event: SyntheticMouseEvent<>) => this._onMouseDown(event)}
             >
                 {!isCompactView && Boolean(label) &&
                     <div className={styles.label}>{label}</div>
                 }
                 <div className={styles.interfacesWrap}>
                     <div className={styles.interfaces}>
-                        {inputs.map((edge) => this.renderJoint('input', edge))}
+                        {inputs.map((edge: Edge) => this.renderJoint('input', edge))}
                     </div>
                     {isCompactView && Boolean(label) &&
                         <div
@@ -289,12 +334,10 @@ class Node extends Component {
                         </div>
                     }
                     <div className={styles.interfaces}>
-                        {outputs.map((edge) => this.renderJoint('output', edge))}
+                        {outputs.map((edge: Edge) => this.renderJoint('output', edge))}
                     </div>
                 </div>
             </div>
         );
     }
 }
-
-export default Node;

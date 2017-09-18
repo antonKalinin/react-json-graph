@@ -68,7 +68,9 @@
     "build-dist-watch": "webpack --watch --config webpack.dev.config.js",
     "release-patch": "npm run build && npm version patch && npm publish",
     "release-minor": "npm run build && npm version minor && npm publish",
-    "release-gh-pages": "npm run dist && ./gh-pages.sh"
+    "release-gh-pages": "npm run dist && ./gh-pages.sh",
+    "flow": "flow || true",
+    "flow-coverage": "flow-coverage-report -i 'src/**/*.js' -f node_modules/flow-bin/vendor/flow || true"
   },
   "dependencies": {
     "hash.js": "^1.0.3"

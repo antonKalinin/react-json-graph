@@ -1,14 +1,51 @@
-import React, {Component, PropTypes} from 'react';
+/* @flow */
+import React, {Component} from 'react';
 import styles from './edge.css';
 
-class Edge extends Component {
+import type {Node} from '../types';
 
-    static propTypes = {
-        sourceId: PropTypes.string.isRequired,
-        targetId: PropTypes.string.isRequired,
+type Props = {
+    sourceId: string,
+    targetId: string,
+};
+
+type State = {
+    path: ?string,
+};
+
+type Rect = {
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+};
+
+class Edge extends Component<Props, State> {
+    sourceId: string;
+    targetId: string;
+
+    source: Node;
+    target: Node;
+
+    static vertiacalLinkPath(source: Node, target: Node):string {
+        return 'M' + source.x + ',' + source.y
+            + 'C' + source.x + ',' + (source.y + target.y) / 2
+            + ' ' + target.x + ',' + (source.y + target.y) / 2
+            + ' ' + target.x + ',' + target.y;
     }
 
-    constructor(props) {
+    static horizontalLinkPath(source: Rect, target: Rect):string {
+        const sourceX = source.x + source.width;
+        const sourceY = source.y + (source.height / 2);
+        const targetY = target.y + (target.height / 2);
+
+        return 'M' + sourceX + ',' + sourceY
+            + 'C' + (sourceX + target.x) / 2 + ',' + sourceY
+            + ' ' + (sourceX + target.x) / 2 + ',' + targetY
+            + ' ' + target.x + ',' + targetY;
+    }
+
+    constructor(props: Props) {
         super(props);
 
         this.sourceId = props.sourceId;
@@ -19,36 +56,18 @@ class Edge extends Component {
         };
     }
 
-    toJSON() {
+    toJSON(): {source: string, target: string} {
         return {
             source: this.sourceId,
             target: this.targetId,
         };
     }
 
-    build(source, target) {
+    build(source: Node, target: Node) {
         this.source = source;
         this.target = target;
 
         this.redraw();
-    }
-
-    vertiacalLinkPath(source, target) {
-        return 'M' + source.x + ',' + source.y
-            + 'C' + source.x + ',' + (source.y + target.y) / 2
-            + ' ' + target.x + ',' + (source.y + target.y) / 2
-            + ' ' + target.x + ',' + target.y;
-    }
-
-    horizontalLinkPath(source, target) {
-        const sourceX = source.x + source.width;
-        const sourceY = source.y + (source.height / 2);
-        const targetY = target.y + (target.height / 2);
-
-        return 'M' + sourceX + ',' + sourceY
-            + 'C' + (sourceX + target.x) / 2 + ',' + sourceY
-            + ' ' + (sourceX + target.x) / 2 + ',' + targetY
-            + ' ' + target.x + ',' + targetY;
     }
 
     redraw() {
@@ -62,7 +81,7 @@ class Edge extends Component {
             ...this.target.getSize(),
         };
 
-        this.setState({path: this.horizontalLinkPath(source, target)});
+        this.setState({path: Edge.horizontalLinkPath(source, target)});
     }
 
     render() {
