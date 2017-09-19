@@ -1,20 +1,12 @@
 /* @flow */
-/* global document */
+/* global document MouseEvent SyntheticMouseEvent HTMLDivElement */
 
 import React, {Component} from 'react';
-import type {Node as ReactNode, SyntheticMouseEvent, HTMLDivElement} from 'react';
+import type {Node as ReactNode, ElementRef as ReactElementRef} from 'react';
+import Edge from '../Edge';
 import styles from './node.css';
 
-import type {Graph, Edge} from '../types';
-
-type NodeJson = {
-    id: string,
-    label: string,
-    position: {
-        x: number,
-        y: number,
-    },
-};
+import type {GraphType, NodeJsonType} from '../types';
 
 type GraphRect = {
     width: number,
@@ -32,8 +24,8 @@ type Props = {
     width: ?number,
     height: ?number,
 
-    getGraph: () => Graph,
-    onChange: ?(NodeJson) => void,
+    getGraph: () => GraphType,
+    onChange: ?(NodeJsonType) => void,
 };
 
 type State = {
@@ -46,8 +38,8 @@ type State = {
     height: number,
 
     edges: {
-        input: Array<Edge>,
-        output: Array<Edge>,
+        input: Array<ReactElementRef<typeof Edge>>,
+        output: Array<ReactElementRef<typeof Edge>>,
     },
     isDragging: boolean,
     isCompactView: boolean,
@@ -56,14 +48,14 @@ type State = {
 export default class Node extends Component<Props, State> {
     id: string;
 
-    _onMouseUp: () => void;
+    _onMouseUp: (MouseEvent) => void;
     _onMouseDown: (SyntheticMouseEvent<>) => void;
-    _onMouseMove: () => void;
+    _onMouseMove: (MouseEvent) => void;
 
     getGraph: () => ?GraphRect;
     moveEdges: () => void;
-    renderJoint: (type: string, edge: Edge) => ReactNode;
-    labelEl: HTMLDivElement;
+    renderJoint: (type: string, edge: ReactElementRef<typeof Edge>) => ReactNode;
+    labelEl: ?HTMLDivElement;
 
     static defaultProps = {
         x: 200,
@@ -99,7 +91,7 @@ export default class Node extends Component<Props, State> {
 
     componentDidMount() {
         const {width} = this.state;
-        const labelWidth = this.labelEl.clientWidth;
+        const labelWidth = this.labelEl ? this.labelEl.clientWidth : 0;
 
         if (width - 30 < labelWidth) {
             this.setState({width: labelWidth + 30});
@@ -169,7 +161,7 @@ export default class Node extends Component<Props, State> {
         return {width, height};
     }
 
-    addEdge(type: string, edge: Edge) {
+    addEdge(type: string, edge: ReactElementRef<typeof Edge>) {
         const {edges} = this.state;
         let isCompactView = this.state.isCompactView;
 
@@ -190,7 +182,7 @@ export default class Node extends Component<Props, State> {
         this.setState({edges});
     }
 
-    toJSON(): NodeJson {
+    toJSON(): NodeJsonType {
         const {id, label, x, y} = this.state;
 
         return {
@@ -212,7 +204,7 @@ export default class Node extends Component<Props, State> {
         event.preventDefault();
     }
 
-    _onMouseUp(event: SyntheticMouseEvent<>) {
+    _onMouseUp(event: MouseEvent) {
         const {onChange} = this.props;
 
         this.setState({isDragging: false});
@@ -225,7 +217,7 @@ export default class Node extends Component<Props, State> {
         event.preventDefault();
     }
 
-    _onMouseMove(event: SyntheticMouseEvent<>) {
+    _onMouseMove(event: MouseEvent) {
         const graph = this.getGraph();
         const {x, y, width, height, scale, isDragging} = this.state;
 
@@ -259,7 +251,7 @@ export default class Node extends Component<Props, State> {
         });
     }
 
-    renderJoint(type: string, edge: Edge): ReactNode {
+    renderJoint(type: string, edge: ReactElementRef<typeof Edge>): ReactNode {
         const className = type === 'input' ? styles.edgeJoint_input : styles.edgeJoint_ouput;
         let label = null;
 
@@ -323,7 +315,7 @@ export default class Node extends Component<Props, State> {
                 }
                 <div className={styles.interfacesWrap}>
                     <div className={styles.interfaces}>
-                        {inputs.map((edge: Edge) => this.renderJoint('input', edge))}
+                        {inputs.map((edge: ReactElementRef<typeof Edge>) => this.renderJoint('input', edge))}
                     </div>
                     {isCompactView && Boolean(label) &&
                         <div
@@ -334,7 +326,7 @@ export default class Node extends Component<Props, State> {
                         </div>
                     }
                     <div className={styles.interfaces}>
-                        {outputs.map((edge: Edge) => this.renderJoint('output', edge))}
+                        {outputs.map((edge: ReactElementRef<typeof Edge>) => this.renderJoint('output', edge))}
                     </div>
                 </div>
             </div>

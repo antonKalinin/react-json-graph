@@ -1,8 +1,9 @@
 /* @flow */
 import React, {Component} from 'react';
-import styles from './edge.css';
+import type {ElementRef as ReactElementRef} from 'react';
 
-import type {Node} from '../types';
+import Node from '../Node';
+import styles from './edge.css';
 
 type Props = {
     sourceId: string,
@@ -24,10 +25,10 @@ class Edge extends Component<Props, State> {
     sourceId: string;
     targetId: string;
 
-    source: Node;
-    target: Node;
+    source: ReactElementRef<typeof Node>;
+    target: ReactElementRef<typeof Node>;
 
-    static vertiacalLinkPath(source: Node, target: Node):string {
+    static vertiacalLinkPath(source: Rect, target: Rect):string {
         return 'M' + source.x + ',' + source.y
             + 'C' + source.x + ',' + (source.y + target.y) / 2
             + ' ' + target.x + ',' + (source.y + target.y) / 2
@@ -63,7 +64,7 @@ class Edge extends Component<Props, State> {
         };
     }
 
-    build(source: Node, target: Node) {
+    build(source: ReactElementRef<typeof Node>, target: ReactElementRef<typeof Node>) {
         this.source = source;
         this.target = target;
 
