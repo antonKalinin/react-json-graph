@@ -6,8 +6,8 @@ import Node from '../Node';
 import styles from './edge.css';
 
 type Props = {
-    source: ReactElementRef<typeof Node>,
-    target: ReactElementRef<typeof Node>,
+    sourceId: string,
+    targetId: string,
 };
 
 type State = {
@@ -22,6 +22,9 @@ type Rect = {
 };
 
 class Edge extends Component<Props, State> {
+    sourceId: string;
+    targetId: string;
+
     source: ReactElementRef<typeof Node>;
     target: ReactElementRef<typeof Node>;
 
@@ -46,43 +49,45 @@ class Edge extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
 
+        this.sourceId = props.sourceId;
+        this.targetId = props.targetId;
+
         this.state = {
-            source: props.source,
-            target: props.target,
+            path: null,
         };
-    }
-
-    componentWillReceiveProps(nextProps) {
-        const {source, target} = this.state;
-
-        if (nextProps.source.id !== source.id) {
-            this.setState({source: nextProps.source});
-        }
-
-        if (nextProps.target.id !== target.id) {
-            this.setState({target: nextProps.target});
-        }
     }
 
     toJSON(): {source: string, target: string} {
-        const {source, target} = this.state;
-
         return {
-            source: source.id,
-            target: target.id,
+            source: this.sourceId,
+            target: this.targetId,
         };
     }
 
-    getPath() {
-        const {source, target} = this.state;
-        return Edge.horizontalLinkPath(source, target);
+    build(source: ReactElementRef<typeof Node>, target: ReactElementRef<typeof Node>) {
+        this.source = source;
+        this.target = target;
+
+        this.redraw();
+    }
+
+    redraw() {
+        const source = {
+            ...this.source.getPosition(),
+            ...this.source.getSize(),
+        };
+
+        const target = {
+            ...this.target.getPosition(),
+            ...this.target.getSize(),
+        };
+
+        this.setState({path: Edge.horizontalLinkPath(source, target)});
     }
 
     render() {
-        const path = this.getPath();
-
         return (
-            <path className={styles.root} d={path} />
+            <path className={styles.root} d={this.state.path} />
         );
     }
 }

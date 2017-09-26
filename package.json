@@ -71,8 +71,5 @@
     "release-gh-pages": "npm run dist && ./gh-pages.sh",
     "flow": "flow || true",
     "flow-coverage": "flow-coverage-report -i 'src/**/*.js' -f node_modules/flow-bin/vendor/flow || true"
-  },
-  "dependencies": {
-    "hash.js": "^1.0.3"
   }
 }

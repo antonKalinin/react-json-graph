@@ -5,6 +5,7 @@
 */
 import React, {Component} from 'react';
 import type {ElementRef as ReactElementRef} from 'react';
+import hash from 'hash.js';
 
 import Node from '../Node';
 import Edge from '../Edge';
@@ -95,13 +96,16 @@ export default class Graph extends Component<Props, State> {
         this.parentWidth = this.graphContainer && this.graphContainer.parentNode
             ? this.graphContainer.parentNode.clientWidth
             : 0;
+
+        this._drawEdges();
     }
 
     componentWillReceiveProps(nextProps: Props) {
         const {json} = this.state;
-
         if (nextProps.json && nextProps.json.label !== json.label) {
-            this.setState({json: nextProps.json});
+            this.setState({json: nextProps.json}, () => {
+                this._drawEdges();
+            });
         }
     }
 
@@ -111,6 +115,22 @@ export default class Graph extends Component<Props, State> {
         if (nextState.scale) {
             nextState.scale = Math.max(minScale, Math.min(nextState.scale, maxScale));
         }
+    }
+
+    _drawEdges() {
+        const findNode = (edgeId: string) => (node: ReactElementRef<typeof Node>) => node.id === edgeId;
+
+        // Draw edges between nodes
+        this.edgeComponents.forEach((edgeComponent: ReactElementRef<typeof Edge>) => {
+            const sourceNode = this.nodeComponents.find(findNode(edgeComponent.sourceId));
+            const targetNode = this.nodeComponents.find(findNode(edgeComponent.targetId));
+
+            if (sourceNode && targetNode) {
+                edgeComponent.build(sourceNode, targetNode);
+                sourceNode.addEdge('output', edgeComponent);
+                targetNode.addEdge('input', edgeComponent);
+            }
+        });
     }
 
     _onChange(nextNode: NodeJsonType) {
@@ -182,7 +202,7 @@ export default class Graph extends Component<Props, State> {
             return;
         }
 
-        let scaleK = 0; // if scale => scaleMin then scaleK => 1;
+        let scaleK = 0; // If scale => scaleMin then scaleK => 1;
 
         if (maxScale - minScale !== 0) {
             scaleK = (maxScale - scale) / (maxScale - minScale);
@@ -226,7 +246,13 @@ export default class Graph extends Component<Props, State> {
         const {scale, minScale, viewOffsetX, viewOffsetY, isDragging} = this.state;
         const {nodes, edges} = this.state.json;
 
+        const getNodePosition = (node: NodeJsonType) => ({
+            x: node.position ? node.position.x : 100,
+            y: node.position ? node.position.y : 100,
+        });
+
         this.nodeComponents = [];
+        this.edgeComponents = [];
 
         return (
             <div
@@ -256,21 +282,23 @@ export default class Graph extends Component<Props, State> {
                         ref={(element: ReactElementRef<'div'>) => { this.htmlContainer = element; }}
                     >
                         {
-                            nodes.map((node: NodeJsonType) => (
-                                <Node
-                                    scale={scale}
-                                    key={`node_${node.id}`}
-                                    ref={
-                                        (component: ReactElementRef<typeof Node>) =>
-                                            component && this.nodeComponents.push(component)
-                                    }
-                                    getGraph={() => this.graphContainer}
-                                    onChange={(nodeJSON: NodeJsonType) => { this._onChange(nodeJSON); }}
-                                    x={node.position ? node.position.x : 0}
-                                    y={node.position ? node.position.y : 0}
-                                    {...node}
-                                />
-                            ))
+                            nodes.map((nodeProps) => {
+                                const nodeHash = hash.sha256().update(JSON.stringify(nodeProps)).digest('hex');
+
+                                const props = {
+                                    scale,
+                                    hash: nodeHash,
+                                    key: `node_${nodeProps.id}`,
+                                    ref: (component: ReactElementRef<typeof Node>) =>
+                                        component && this.nodeComponents.push(component),
+                                    getGraph: () => this.graphContainer,
+                                    onChange: (nodeJSON) => { this._onChange(nodeJSON); },
+                                    ...getNodePosition(nodeProps),
+                                    ...nodeProps,
+                                };
+
+                                return <Node {...props} />;
+                            })
                         }
                     </div>
                     <svg
@@ -287,8 +315,8 @@ export default class Graph extends Component<Props, State> {
                                         scale={scale}
                                         ref={(component: ReactElementRef<typeof Edge>) =>
                                             component && this.edgeComponents.push(component)}
-                                        source={edgeProps.source}
-                                        target={edgeProps.target}
+                                        sourceId={edgeProps.source}
+                                        targetId={edgeProps.target}
                                     />
                                 );
                             })
