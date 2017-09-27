@@ -5,42 +5,42 @@ import type {ElementRef as ReactElementRef} from 'react';
 import Node from '../Node';
 import styles from './edge.css';
 
+import NodeJsonType from '../types';
+
 type Props = {
-    source: ReactElementRef<typeof Node>,
-    target: ReactElementRef<typeof Node>,
+    vertical: boolean,
+    directed: boolean,
+    source: NodeJsonType,
+    target: NodeJsonType,
 };
 
 type State = {
-    path: ?string,
+    source: NodeJsonType,
+    target: NodeJsonType,
 };
 
-type Rect = {
+type Point = {
     x: number,
     y: number,
-    width: number,
-    height: number,
 };
 
 class Edge extends Component<Props, State> {
-    source: ReactElementRef<typeof Node>;
-    target: ReactElementRef<typeof Node>;
-
-    static vertiacalLinkPath(source: Rect, target: Rect):string {
+    static vertiacalLinkPath(source: Point, target: Point):string {
         return 'M' + source.x + ',' + source.y
             + 'C' + source.x + ',' + (source.y + target.y) / 2
             + ' ' + target.x + ',' + (source.y + target.y) / 2
             + ' ' + target.x + ',' + target.y;
     }
 
-    static horizontalLinkPath(source: Rect, target: Rect):string {
+    static horizontalLinkPath(source: Point, target: Point):string {
         const sourceX = source.x + source.width;
         const sourceY = source.y + (source.height / 2);
         const targetY = target.y + (target.height / 2);
 
-        return 'M' + sourceX + ',' + sourceY
-            + 'C' + (sourceX + target.x) / 2 + ',' + sourceY
-            + ' ' + (sourceX + target.x) / 2 + ',' + targetY
-            + ' ' + target.x + ',' + targetY;
+        return 'M' + source.x + ',' + source.y
+            + 'C' + (source.x + target.x) / 2 + ',' + source.y
+            + ' ' + (source.x + target.x) / 2 + ',' + target.y
+            + ' ' + target.x + ',' + target.y;
     }
 
     constructor(props: Props) {
@@ -73,13 +73,45 @@ class Edge extends Component<Props, State> {
         };
     }
 
-    getPath() {
-        const {source, target} = this.state;
-        return Edge.horizontalLinkPath(source, target);
+    getPath(sourcePoint: Point, targetPoint: Point) {
+        if (this.props.vertical) {
+            return Edge.vertiacalLinkPath(sourcePoint, targetPoint);
+        }
+
+        return Edge.horizontalLinkPath(sourcePoint, targetPoint);
+    }
+
+
+    getJointPoint(node) {
+        const {directed, vertical} = this.props;
+        const {source, target} = this.props;
+
+        const point = {
+            x: node.position.x,
+            y: node.position.y,
+        };
+
+        if (directed) {
+            if (node.id === source.id) {
+                point.x = node.position.x + node.size.width;
+                point.y = node.position.y + (node.size.height / 2);
+            } else {
+                point.y = node.position.y + (node.size.height / 2);
+            }
+
+            return point;
+        }
+
+
+        return point;
     }
 
     render() {
-        const path = this.getPath();
+        const {source, target} = this.state;
+        const sourceJoint = this.getJointPoint(source);
+        const targetJoint = this.getJointPoint(target);
+
+        const path = this.getPath(sourceJoint, targetJoint);
 
         return (
             <path className={styles.root} d={path} />

@@ -27,6 +27,7 @@ type Props = {
     maxScale: number,
 
     onChange: (any) => void,
+    renderNode: ?() => void,
     style: any,
 };
 
@@ -95,6 +96,8 @@ export default class Graph extends Component<Props, State> {
         this.parentWidth = this.graphContainer && this.graphContainer.parentNode
             ? this.graphContainer.parentNode.clientWidth
             : 0;
+
+        this._updateNodeSizes();
     }
 
     componentWillReceiveProps(nextProps: Props) {
@@ -214,11 +217,37 @@ export default class Graph extends Component<Props, State> {
         this.setState({isDragging: false});
     }
 
+    _updateNodeSizes() {
+        this.nodeComponents.map(nodeComponent => console.log(nodeComponent));
+    }
+
     toJSON() {
         return {
             nodes: this.nodeComponents.map(nodeComponent => nodeComponent.toJSON()),
             edges: this.edgeComponents.map(edgeComponent => edgeComponent.toJSON()),
         };
+    }
+
+    renderNode(node: NodeJsonType) {
+        const {renderNode} = this.props;
+
+        if (typeof renderNode === 'function') {
+            return renderNode(node);
+        }
+
+        return (<Node
+            scale={scale}
+            key={`node_${node.id}`}
+            ref={
+                (component: ReactElementRef<typeof Node>) =>
+                    component && this.nodeComponents.push(component)
+            }
+            getGraph={() => this.graphContainer}
+            onChange={(nodeJSON: NodeJsonType) => { this._onChange(nodeJSON); }}
+            x={node.position ? node.position.x : 0}
+            y={node.position ? node.position.y : 0}
+            {...node}
+        />);
     }
 
     render() {
@@ -256,21 +285,7 @@ export default class Graph extends Component<Props, State> {
                         ref={(element: ReactElementRef<'div'>) => { this.htmlContainer = element; }}
                     >
                         {
-                            nodes.map((node: NodeJsonType) => (
-                                <Node
-                                    scale={scale}
-                                    key={`node_${node.id}`}
-                                    ref={
-                                        (component: ReactElementRef<typeof Node>) =>
-                                            component && this.nodeComponents.push(component)
-                                    }
-                                    getGraph={() => this.graphContainer}
-                                    onChange={(nodeJSON: NodeJsonType) => { this._onChange(nodeJSON); }}
-                                    x={node.position ? node.position.x : 0}
-                                    y={node.position ? node.position.y : 0}
-                                    {...node}
-                                />
-                            ))
+                            nodes.map((node: NodeJsonType) => this.renderNode(node))
                         }
                     </div>
                     <svg
@@ -278,20 +293,12 @@ export default class Graph extends Component<Props, State> {
                         className={styles.svg}
                     >
                         {
-                            edges.map((edgeProps) => {
-                                const id = `edge_${edgeProps.source}_${edgeProps.target}`;
-
-                                return (
-                                    <Edge
-                                        key={id}
-                                        scale={scale}
-                                        ref={(component: ReactElementRef<typeof Edge>) =>
-                                            component && this.edgeComponents.push(component)}
-                                        source={edgeProps.source}
-                                        target={edgeProps.target}
-                                    />
-                                );
-                            })
+                            edges.map((edge) => (<Edge
+                                key={`edge_${edge.source.id}_${edge.target.id}`}
+                                scale={scale}
+                                source={edge.source}
+                                target={edge.target}
+                            />))
                         }
                     </svg>
                 </div>
