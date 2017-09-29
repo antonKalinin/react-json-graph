@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from 'react';
+import React, {Component} from 'react';
 import Graph from '../index';
 import Links from './Links';
 import Header from './Header';
@@ -37,7 +37,7 @@ class App extends Component {
                     <Links />
                 </div>
                 <Graph
-                    onChange={(json) => { console.log(JSON.stringify(json)); }}
+                    onChange={(json) => { /* console.log(JSON.stringify(json)); */ }}
                     json={graphJSON}
                     scale={0.5}
                     minScale={0.5}
@@ -48,10 +48,6 @@ class App extends Component {
         );
     }
 }
-
-App.propTypes = {
-    graphJSON: PropTypes.object,
-};
 
 export default connect(state => ({
     graphJSON: state.graphJSON,

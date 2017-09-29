@@ -26,6 +26,8 @@ type Props = {
     minScale: number,
     maxScale: number,
 
+    directed: boolean,
+
     onChange: (any) => void,
     renderNode: ?() => void,
     style: any,
@@ -76,8 +78,12 @@ export default class Graph extends Component<Props, State> {
         const viewOffsetX = props.width * (minScale - maxScale);
         const viewOffsetY = props.height * (minScale - maxScale);
 
+        console.log(props.json.edges);
+
         this.state = {
-            json: props.json,
+            label: props.json.label,
+            nodes: props.json.nodes,
+            edges: props.json.edges,
 
             minScale,
             maxScale,
@@ -101,10 +107,10 @@ export default class Graph extends Component<Props, State> {
     }
 
     componentWillReceiveProps(nextProps: Props) {
-        const {json} = this.state;
+        const {label} = this.state;
 
-        if (nextProps.json && nextProps.json.label !== json.label) {
-            this.setState({json: nextProps.json});
+        if (nextProps.json && nextProps.json.label !== label) {
+            this.setState({label: nextProps.json.label});
         }
     }
 
@@ -117,20 +123,22 @@ export default class Graph extends Component<Props, State> {
     }
 
     _onChange(nextNode: NodeJsonType) {
-        const {json} = this.state;
+        let {nodes, edges} = this.state;
         const {onChange} = this.props;
 
         if (nextNode) {
-            json.nodes = json.nodes.map(
-                (node: NodeJsonType) => (node.id === nextNode.id ? nextNode : node)
-            );
+            nodes = nodes.map((node: NodeJsonType) => (
+                node.id === nextNode.id
+                    ? {...node, ...nextNode}
+                    : node
+            ));
         }
 
         if (typeof onChange === 'function') {
-            onChange(json);
+            onChange({nodes, edges});
         }
 
-        this.setState(json);
+        this.setState({nodes});
     }
 
     _onWhell(event: WheelEvent) {
@@ -218,7 +226,20 @@ export default class Graph extends Component<Props, State> {
     }
 
     _updateNodeSizes() {
-        this.nodeComponents.map(nodeComponent => console.log(nodeComponent));
+        const nodes = this.nodeComponents.map(({props}) => ({
+            id: props.id,
+            label: props.label,
+            position: {
+                x: props.x,
+                y: props.y,
+            },
+            size: {
+                width: props.width,
+                height: props.height,
+            },
+        }));
+
+        
     }
 
     toJSON() {
@@ -230,6 +251,7 @@ export default class Graph extends Component<Props, State> {
 
     renderNode(node: NodeJsonType) {
         const {renderNode} = this.props;
+        const {scale} = this.state;
 
         if (typeof renderNode === 'function') {
             return renderNode(node);
@@ -251,9 +273,13 @@ export default class Graph extends Component<Props, State> {
     }
 
     render() {
-        const {width, height, style} = this.props;
-        const {scale, minScale, viewOffsetX, viewOffsetY, isDragging} = this.state;
-        const {nodes, edges} = this.state.json;
+        const {width, height, style, directed} = this.props;
+        const {nodes, edges, scale, minScale, viewOffsetX, viewOffsetY, isDragging} = this.state;
+
+        const _edges = edges.map((edge: {source: string, target: string}) => ({
+            source: nodes.find(node => node.id === edge.source) || null,
+            target: nodes.find(node => node.id === edge.target) || null,
+        })).filter(Boolean);
 
         this.nodeComponents = [];
 
@@ -264,7 +290,7 @@ export default class Graph extends Component<Props, State> {
             >
                 <div
                     className={`${styles.root}`}
-                    style={Object.assign(style, {
+                    style={Object.assign({}, style, {
                         width: width / minScale,
                         height: height / minScale,
                         marginLeft: viewOffsetX,
@@ -293,11 +319,12 @@ export default class Graph extends Component<Props, State> {
                         className={styles.svg}
                     >
                         {
-                            edges.map((edge) => (<Edge
+                            _edges.map((edge) => (<Edge
                                 key={`edge_${edge.source.id}_${edge.target.id}`}
                                 scale={scale}
                                 source={edge.source}
                                 target={edge.target}
+                                directed={directed || false}
                             />))
                         }
                     </svg>

@@ -3,7 +3,7 @@ import graphs from './graphs';
 export default function reducers(state = {
     scale: 1,
     grapsNames: Object.keys(graphs),
-    graphJSON: graphs.components,
+    graphJSON: graphs.network,
 }, action) {
     switch (action.type) {
     case 'UPDATE_GRAPH_JSON':

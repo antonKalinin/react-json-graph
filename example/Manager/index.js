@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from 'react';
+import React, {Component} from 'react';
 import {RadioGroup, RadioButton} from 'react-toolbox/lib/radio';
 import {Button} from 'react-toolbox/lib/button';
 import {connect} from 'react-redux';
@@ -43,12 +43,6 @@ class Manager extends Component {
         );
     }
 }
-
-Manager.propTypes = {
-    grapsNames: PropTypes.array,
-    graphJSON: PropTypes.object,
-    dispatch: PropTypes.func.isRequired,
-};
 
 export default connect(state => ({
     grapsNames: state.grapsNames,

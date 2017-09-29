@@ -54,23 +54,19 @@ class Edge extends Component<Props, State> {
 
     componentWillReceiveProps(nextProps) {
         const {source, target} = this.state;
+        const nextState = {};
 
-        if (nextProps.source.id !== source.id) {
-            this.setState({source: nextProps.source});
+        if (nextProps.source !== source) {
+            nextState.source = nextProps.source;
         }
 
-        if (nextProps.target.id !== target.id) {
-            this.setState({target: nextProps.target});
+        if (nextProps.target !== target) {
+            nextState.target = nextProps.target;
         }
-    }
 
-    toJSON(): {source: string, target: string} {
-        const {source, target} = this.state;
-
-        return {
-            source: source.id,
-            target: target.id,
-        };
+        if (Object.keys(nextState).length > 0) {
+            this.setState(nextState);
+        }
     }
 
     getPath(sourcePoint: Point, targetPoint: Point) {
@@ -102,8 +98,19 @@ class Edge extends Component<Props, State> {
             return point;
         }
 
+        // TODO: write logic for not directed and vertical cases
 
         return point;
+    }
+
+
+    toJSON(): {source: string, target: string} {
+        const {source, target} = this.state;
+
+        return {
+            source: source.id,
+            target: target.id,
+        };
     }
 
     render() {

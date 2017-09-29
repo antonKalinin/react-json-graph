@@ -149,39 +149,6 @@ export default class Node extends Component<Props, State> {
         };
     }
 
-    getPosition() {
-        const {x, y} = this.state;
-
-        return {x, y};
-    }
-
-    getSize() {
-        const {width, height} = this.state;
-
-        return {width, height};
-    }
-
-    addEdge(type: string, edge: ReactElementRef<typeof Edge>) {
-        const {edges} = this.state;
-        let isCompactView = this.state.isCompactView;
-
-        if (type === 'input' && typeof edge.targetId !== 'string') {
-            isCompactView = false;
-        }
-
-        if (type === 'output' && typeof edge.sourceId !== 'string') {
-            isCompactView = false;
-        }
-
-        if (isCompactView !== this.state.isCompactView) {
-            this.setState({isCompactView});
-        }
-
-        edges[type] = edges[type].concat(edge);
-
-        this.setState({edges});
-    }
-
     toJSON(): NodeJsonType {
         const {id, label, x, y} = this.state;
 
@@ -232,23 +199,13 @@ export default class Node extends Component<Props, State> {
             return;
         }
 
-        this.setState({x: nextX, y: nextY});
-        this.moveEdges();
+        const nextState = {x: nextX, y: nextY};
+
+        this.setState(nextState);
+        this.props.onChange(this.toJSON());
 
         event.stopPropagation();
         event.preventDefault();
-    }
-
-    moveEdges() {
-        const {edges} = this.state;
-
-        edges.input.forEach((edge) => {
-            edge.redraw();
-        });
-
-        edges.output.forEach((edge) => {
-            edge.redraw();
-        });
     }
 
     renderJoint(type: string, edge: ReactElementRef<typeof Edge>): ReactNode {
@@ -285,6 +242,8 @@ export default class Node extends Component<Props, State> {
         const {label} = this.props;
     }
 
+    // if connected node x is greater than me, joint is on the right
+    // elsa on the left
     renderJoint_(connectedTo: ReactElementRef<typeof Node>) {
         if (!connectedTo) {
             return null;
