@@ -1,11 +1,9 @@
 /* @flow */
-import React, {Component} from 'react';
-import type {ElementRef as ReactElementRef} from 'react';
+import React, {PureComponent} from 'react';
 
-import Node from '../Node';
 import styles from './edge.css';
 
-import NodeJsonType from '../types';
+import type {NodeJsonType} from '../types';
 
 type Props = {
     vertical: boolean,
@@ -24,7 +22,7 @@ type Point = {
     y: number,
 };
 
-class Edge extends Component<Props, State> {
+class Edge extends PureComponent<Props, State> {
     static vertiacalLinkPath(source: Point, target: Point):string {
         return 'M' + source.x + ',' + source.y
             + 'C' + source.x + ',' + (source.y + target.y) / 2
@@ -33,14 +31,28 @@ class Edge extends Component<Props, State> {
     }
 
     static horizontalLinkPath(source: Point, target: Point):string {
-        const sourceX = source.x + source.width;
-        const sourceY = source.y + (source.height / 2);
-        const targetY = target.y + (target.height / 2);
-
         return 'M' + source.x + ',' + source.y
             + 'C' + (source.x + target.x) / 2 + ',' + source.y
             + ' ' + (source.x + target.x) / 2 + ',' + target.y
             + ' ' + target.x + ',' + target.y;
+    }
+
+    static isNodePositionChanged(currNode, nextNode) {
+        return currNode.position.x !== nextNode.position.x ||
+            currNode.position.y !== nextNode.position.y;
+    }
+
+    static isNodeSizeChanged(currNode, nextNode) {
+        if (!currNode.size && !nextNode.size) {
+            return false;
+        }
+
+        if ((!currNode.size && nextNode.size) || (currNode.size && !nextNode.size)) {
+            return true;
+        }
+
+        return currNode.size.width !== nextNode.size.width ||
+            currNode.size.height !== nextNode.size.height;
     }
 
     constructor(props: Props) {
@@ -52,16 +64,23 @@ class Edge extends Component<Props, State> {
         };
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps(nextProps: Props) {
         const {source, target} = this.state;
+        const {source: nextSource, target: nextTarget} = nextProps;
         const nextState = {};
 
-        if (nextProps.source !== source) {
-            nextState.source = nextProps.source;
+        if (
+            Edge.isNodePositionChanged(source, nextSource) ||
+            Edge.isNodeSizeChanged(source, nextSource)
+        ) {
+            nextState.source = nextSource;
         }
 
-        if (nextProps.target !== target) {
-            nextState.target = nextProps.target;
+        if (
+            Edge.isNodePositionChanged(target, nextTarget) ||
+            Edge.isNodeSizeChanged(target, nextTarget)
+        ) {
+            nextState.target = nextTarget;
         }
 
         if (Object.keys(nextState).length > 0) {
@@ -77,8 +96,7 @@ class Edge extends Component<Props, State> {
         return Edge.horizontalLinkPath(sourcePoint, targetPoint);
     }
 
-
-    getJointPoint(node) {
+    getJointPoint(node: NodeJsonType) {
         const {directed, vertical} = this.props;
         const {source, target} = this.props;
 
@@ -87,22 +105,41 @@ class Edge extends Component<Props, State> {
             y: node.position.y,
         };
 
+        const {width = 0, height = 0} = node.size || {};
+
         if (directed) {
             if (node.id === source.id) {
-                point.x = node.position.x + node.size.width;
-                point.y = node.position.y + (node.size.height / 2);
+                point.x = node.position.x + width;
+                point.y = node.position.y + (height / 2);
             } else {
-                point.y = node.position.y + (node.size.height / 2);
+                point.y = node.position.y + (height / 2);
             }
 
             return point;
         }
 
-        // TODO: write logic for not directed and vertical cases
+        if (node.id === source.id) {
+            if (node.position.x + (width / 2) < target.position.x) {
+                point.x = node.position.x + width;
+                point.y = node.position.y + (height / 2);
+            } else {
+                point.y = node.position.y + (height / 2);
+            }
+
+            return point;
+        }
+
+        if (node.position.x + (width / 2) < source.position.x) {
+            point.x = node.position.x + width;
+            point.y = node.position.y + (height / 2);
+        } else {
+            point.y = node.position.y + (height / 2);
+        }
+
+        // TODO: write logic for vertical cases
 
         return point;
     }
-
 
     toJSON(): {source: string, target: string} {
         const {source, target} = this.state;
@@ -113,6 +150,10 @@ class Edge extends Component<Props, State> {
         };
     }
 
+    renderPath(path: string) {
+        return (<path className={styles.root} d={path} />);
+    }
+
     render() {
         const {source, target} = this.state;
         const sourceJoint = this.getJointPoint(source);
@@ -120,9 +161,7 @@ class Edge extends Component<Props, State> {
 
         const path = this.getPath(sourceJoint, targetJoint);
 
-        return (
-            <path className={styles.root} d={path} />
-        );
+        return this.renderPath(path);
     }
 }
 

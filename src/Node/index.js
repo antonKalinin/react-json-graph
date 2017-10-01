@@ -1,5 +1,7 @@
-/* @flow */
-/* global document MouseEvent SyntheticMouseEvent HTMLDivElement */
+/*
+    @flow
+    global document MouseEvent SyntheticMouseEvent HTMLDivElement
+*/
 
 import React, {Component} from 'react';
 import type {Node as ReactNode, ElementRef as ReactElementRef} from 'react';
@@ -36,11 +38,6 @@ type State = {
     label: string,
     width: number,
     height: number,
-
-    edges: {
-        input: Array<ReactElementRef<typeof Edge>>,
-        output: Array<ReactElementRef<typeof Edge>>,
-    },
     isDragging: boolean,
     isCompactView: boolean,
 };
@@ -67,8 +64,6 @@ export default class Node extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
 
-        this.id = props.id;
-
         this.state = {
             id: props.id,
             x: props.x,
@@ -77,10 +72,6 @@ export default class Node extends Component<Props, State> {
             label: props.label,
             width: props.width || Node.defaultProps.width,
             height: props.height || Node.defaultProps.height,
-            edges: {
-                input: [],
-                output: [],
-            },
             isDragging: false,
             isCompactView: true,
         };
@@ -100,13 +91,14 @@ export default class Node extends Component<Props, State> {
 
     componentWillReceiveProps(nextProps: Props) {
         const {scale, label} = this.state;
+        const nextState = {};
 
         if (nextProps.scale && nextProps.scale !== scale) {
-            this.setState({scale: nextProps.scale});
+            nextState.scale = nextProps.scale;
         }
 
         if (nextProps.label !== label) {
-            this.setState({
+            Object.assign(nextState, {
                 id: nextProps.id,
                 x: nextProps.x,
                 y: nextProps.y,
@@ -114,12 +106,20 @@ export default class Node extends Component<Props, State> {
                 label: nextProps.label,
                 width: nextProps.width || Node.defaultProps.width,
                 height: nextProps.height || Node.defaultProps.height,
-                edges: {
-                    input: [],
-                    output: [],
-                },
             });
         }
+
+        if (Object.keys(nextState).length > 0) {
+            this.setState(nextState);
+        }
+    }
+
+    shouldComponentUpdate(nextProps: Props, nextState: State) {
+        const {x, y, width, height, isDragging} = this.state;
+
+        return isDragging !== nextState.isDragging ||
+            x !== nextState.x || y !== nextState.y ||
+            width !== nextState.width || height !== nextState.height;
     }
 
     componentDidUpdate(props: Props, state: State) {
@@ -186,6 +186,7 @@ export default class Node extends Component<Props, State> {
 
     _onMouseMove(event: MouseEvent) {
         const graph = this.getGraph();
+        const {onChange} = this.props;
         const {x, y, width, height, scale, isDragging} = this.state;
 
         if (!isDragging || !graph) return;
@@ -201,12 +202,17 @@ export default class Node extends Component<Props, State> {
 
         const nextState = {x: nextX, y: nextY};
 
-        this.setState(nextState);
-        this.props.onChange(this.toJSON());
+        this.setState(nextState, () => {
+            if (typeof onChange === 'function') {
+                onChange(this.toJSON());
+            }
+        });
 
         event.stopPropagation();
         event.preventDefault();
     }
+
+    /* Render Methods */
 
     renderJoint(type: string, edge: ReactElementRef<typeof Edge>): ReactNode {
         const className = type === 'input' ? styles.edgeJoint_input : styles.edgeJoint_ouput;
@@ -234,20 +240,19 @@ export default class Node extends Component<Props, State> {
         );
     }
 
-    renderBody() {
+    renderContainer() {
 
     }
 
-    renderLabel() {
-        const {label} = this.props;
-    }
-
-    // if connected node x is greater than me, joint is on the right
-    // elsa on the left
-    renderJoint_(connectedTo: ReactElementRef<typeof Node>) {
-        if (!connectedTo) {
-            return null;
-        }
+    renderContent(label: string) {
+        return (
+            <div
+                ref={(element) => { this.labelEl = element }}
+                className={styles.label}
+            >
+                {label}
+            </div>
+        );
     }
 
     render() {
@@ -257,20 +262,10 @@ export default class Node extends Component<Props, State> {
             width,
             height,
             label,
-            edges,
             isDragging,
-            isCompactView,
         } = this.state;
 
         const className = `${styles.root} ${isDragging ? styles.root_dragging_yes : ''}`;
-
-        let inputs = edges.input;
-        let outputs = edges.output;
-
-        if (isCompactView) {
-            inputs = inputs.slice(0, 1);
-            outputs = outputs.slice(0, 1);
-        }
 
         return (
             <div
@@ -280,28 +275,12 @@ export default class Node extends Component<Props, State> {
                     top: y,
                     width,
                     height,
+                    minWidth: 160,
                 }}
+                ref={(element) => { this.element = element }}
                 onMouseDown={(event: SyntheticMouseEvent<>) => this._onMouseDown(event)}
             >
-                {!isCompactView && Boolean(label) &&
-                    <div className={styles.label}>{label}</div>
-                }
-                <div className={styles.interfacesWrap}>
-                    <div className={styles.interfaces}>
-                        {inputs.map((edge: ReactElementRef<typeof Edge>) => this.renderJoint('input', edge))}
-                    </div>
-                    {isCompactView && Boolean(label) &&
-                        <div
-                            ref={(element) => { this.labelEl = element; }}
-                            className={styles.label}
-                        >
-                            {label}
-                        </div>
-                    }
-                    <div className={styles.interfaces}>
-                        {outputs.map((edge: ReactElementRef<typeof Edge>) => this.renderJoint('output', edge))}
-                    </div>
-                </div>
+                { Boolean(label) && this.renderContent(label) }
             </div>
         );
     }

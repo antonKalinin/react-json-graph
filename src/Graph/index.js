@@ -1,5 +1,6 @@
-/* @flow */
-/* 
+/*
+    @flow
+
     global document Math
     SyntheticWheelEvent SyntheticMouseEvent WheelEvent MouseEvent 
 */
@@ -9,7 +10,7 @@ import type {ElementRef as ReactElementRef} from 'react';
 import Node from '../Node';
 import Edge from '../Edge';
 
-import type {NodeJsonType} from '../types';
+import type {NodeJsonType, EdgeJsonType} from '../types';
 
 import styles from './graph.css';
 
@@ -27,6 +28,8 @@ type Props = {
     maxScale: number,
 
     directed: boolean,
+    Node: ReactElementRef<typeof Node>,
+    Edge: ReactElementRef<typeof Edge>,
 
     onChange: (any) => void,
     renderNode: ?() => void,
@@ -34,7 +37,9 @@ type Props = {
 };
 
 type State = {
-    json: any,
+    label: string,
+    nodes: Array<NodeJsonType>,
+    edges: Array<EdgeJsonType>,
 
     minScale: number,
     maxScale: number,
@@ -54,7 +59,6 @@ export default class Graph extends Component<Props, State> {
     htmlContainer: ?ReactElementRef<'div'>;
     graphContainer: ?ReactElementRef<'div'>;
     nodeComponents: Array<ReactElementRef<typeof Node>>;
-    edgeComponents: Array<ReactElementRef<typeof Edge>>;
 
     static defaultProps = {
         scale: 1,
@@ -70,15 +74,12 @@ export default class Graph extends Component<Props, State> {
 
         this.parentWidth = document.body ? document.body.clientWidth : 0;
         this.nodeComponents = [];
-        this.edgeComponents = [];
 
         const minScale = props.minScale ? Math.max(props.minScale, SCALE_MIN) : SCALE_MIN;
         const maxScale = props.maxScale ? Math.min(props.maxScale, SCALE_MAX) : SCALE_MAX;
 
         const viewOffsetX = props.width * (minScale - maxScale);
         const viewOffsetY = props.height * (minScale - maxScale);
-
-        console.log(props.json.edges);
 
         this.state = {
             label: props.json.label,
@@ -103,14 +104,20 @@ export default class Graph extends Component<Props, State> {
             ? this.graphContainer.parentNode.clientWidth
             : 0;
 
-        this._updateNodeSizes();
+        this.setState({nodes: this._getNodesProps()});
     }
 
     componentWillReceiveProps(nextProps: Props) {
         const {label} = this.state;
 
         if (nextProps.json && nextProps.json.label !== label) {
-            this.setState({label: nextProps.json.label});
+            this.setState({
+                label: nextProps.json.label,
+                nodes: nextProps.json.nodes,
+                edges: nextProps.json.edges,
+            }, () => {
+                this.setState({nodes: this._getNodesProps()});
+            });
         }
     }
 
@@ -123,8 +130,8 @@ export default class Graph extends Component<Props, State> {
     }
 
     _onChange(nextNode: NodeJsonType) {
-        let {nodes, edges} = this.state;
-        const {onChange} = this.props;
+        let {nodes} = this.state;
+        const {json, onChange} = this.props;
 
         if (nextNode) {
             nodes = nodes.map((node: NodeJsonType) => (
@@ -135,7 +142,8 @@ export default class Graph extends Component<Props, State> {
         }
 
         if (typeof onChange === 'function') {
-            onChange({nodes, edges});
+            json.nodes = nodes;
+            onChange(json);
         }
 
         this.setState({nodes});
@@ -225,8 +233,8 @@ export default class Graph extends Component<Props, State> {
         this.setState({isDragging: false});
     }
 
-    _updateNodeSizes() {
-        const nodes = this.nodeComponents.map(({props}) => ({
+    _getNodesProps() {
+        return this.nodeComponents.map(({props}) => ({
             id: props.id,
             label: props.label,
             position: {
@@ -238,8 +246,6 @@ export default class Graph extends Component<Props, State> {
                 height: props.height,
             },
         }));
-
-        
     }
 
     toJSON() {
@@ -321,7 +327,6 @@ export default class Graph extends Component<Props, State> {
                         {
                             _edges.map((edge) => (<Edge
                                 key={`edge_${edge.source.id}_${edge.target.id}`}
-                                scale={scale}
                                 source={edge.source}
                                 target={edge.target}
                                 directed={directed || false}
