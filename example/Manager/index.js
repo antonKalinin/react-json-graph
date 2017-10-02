@@ -4,7 +4,7 @@ import {Button} from 'react-toolbox/lib/button';
 import {connect} from 'react-redux';
 import {setGraph} from '../actions';
 
-import styles from './manager.css';
+import styles from './Manager.css';
 
 class Manager extends Component {
     constructor(props) {

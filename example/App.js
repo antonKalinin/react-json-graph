@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
-import Graph from '../index';
+import Graph, {Node} from '../index';
 import Links from './Links';
 import Header from './Header';
 import Manager from './Manager';
+import CityNode from './nodes/CityNode';
 
 import {connect} from 'react-redux';
-
 
 class App extends Component {
     constructor(props) {
@@ -24,10 +24,21 @@ class App extends Component {
         }
     }
 
+    getNode() {
+        const {graphJSON: {label: graphName}} = this.state;
+
+        if (graphName === 'cities') {
+            return CityNode;
+        }
+
+        return Node;
+    }
+
     render() {
         const {graphJSON} = this.state;
         const width = document.body.clientWidth;
         const height = document.body.clientHeight;
+        const graphName = graphJSON.label;
 
         return (
             <div className='dotted'>
@@ -43,6 +54,8 @@ class App extends Component {
                     minScale={0.5}
                     width={width}
                     height={height}
+                    Node={this.getNode()}
+                    shouldContainerFitContent={graphName !== 'cities'}
                 />
             </div>
         );

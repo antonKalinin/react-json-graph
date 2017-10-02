@@ -1,0 +1,114 @@
+{
+    "label": "cities",
+    "nodes": [{
+        "id": "0",
+        "label": "Berlin",
+        "position": {
+            "x": 1638,
+            "y": 626
+        },
+        "size": {
+            "width": 10,
+            "height": 10
+        }
+    }, {
+        "id": "1",
+        "label": "London",
+        "position": {
+            "x": 1214.9999999999995,
+            "y": 460.99999999999955
+        },
+        "size": {
+            "width": 10,
+            "height": 10
+        }
+    }, {
+        "id": "2",
+        "label": "Paris",
+        "position": {
+            "x": 1327.9999999999995,
+            "y": 793
+        },
+        "size": {
+            "width": 10,
+            "height": 10
+        }
+    }, {
+        "id": "3",
+        "label": "Moscow",
+        "position": {
+            "x": 2484.999999999999,
+            "y": 417.9999999999998
+        },
+        "size": {
+            "width": 10,
+            "height": 10
+        }
+    }, {
+        "id": "4",
+        "label": "Madrid",
+        "position": {
+            "x": 1195.9999999999993,
+            "y": 1088.9999999999998
+        },
+        "size": {
+            "width": 10,
+            "height": 10
+        }
+    }, {
+        "id": "5",
+        "label": "Lisbon",
+        "position": {
+            "x": 1047.9999999999993,
+            "y": 1162.9999999999998
+        },
+        "size": {
+            "width": 10,
+            "height": 10
+        }
+    }, {
+        "id": "6",
+        "label": "Praha",
+        "position": {
+            "x": 1801.9999999999993,
+            "y": 752.9999999999998
+        },
+        "size": {
+            "width": 10,
+            "height": 10
+        }
+    }, {
+        "id": "7",
+        "label": "Warsaw",
+        "position": {
+            "x": 1955.999999999999,
+            "y": 612.9999999999998
+        },
+        "size": {
+            "width": 10,
+            "height": 10
+        }
+    }],
+    "edges": [{
+        "source": "0",
+        "target": "1"
+    }, {
+        "source": "1",
+        "target": "2"
+    }, {
+        "source": "0",
+        "target": "3"
+    }, {
+        "source": "3",
+        "target": "7"
+    }, {
+        "source": "4",
+        "target": "5"
+    }, {
+        "source": "4",
+        "target": "6"
+    }, {
+        "source": "6",
+        "target": "7"
+    }]
+}

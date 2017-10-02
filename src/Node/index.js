@@ -25,7 +25,7 @@ type Props = {
     label: string,
     width: ?number,
     height: ?number,
-
+    shouldContainerFitContent: boolean,
     getGraph: () => GraphType,
     onChange: ?(NodeJsonType) => void,
 };
@@ -70,8 +70,8 @@ export default class Node extends Component<Props, State> {
             y: props.y,
             scale: props.scale,
             label: props.label,
-            width: props.width || Node.defaultProps.width,
-            height: props.height || Node.defaultProps.height,
+            width: props.width,
+            height: props.height,
             isDragging: false,
             isCompactView: true,
         };
@@ -81,16 +81,31 @@ export default class Node extends Component<Props, State> {
     }
 
     componentDidMount() {
-        const {width} = this.state;
-        const labelWidth = this.labelEl ? this.labelEl.clientWidth : 0;
+        console.log(this.props.shouldContainerFitContent)
+        if (this.props.shouldContainerFitContent === false) {
+            return;
+        }
+
+        const nextState = {};
+        const {width, height} = this.state;
+        const {clientWidth: labelWidth = 0, clientHeight: labelHeight = 0} = this.labelEl || {};
 
         if (width - 30 < labelWidth) {
-            this.setState({width: labelWidth + 30});
+            nextState.width = labelWidth + 30;
+        }
+
+        if (height - 20 < labelWidth) {
+            nextState.height = labelHeight + 20;
+        }
+
+        if (Object.keys(nextState).length > 0) {
+            this.setState(nextState);
         }
     }
 
     componentWillReceiveProps(nextProps: Props) {
         const {scale, label} = this.state;
+        const {width, height} = nextProps.size || {};
         const nextState = {};
 
         if (nextProps.scale && nextProps.scale !== scale) {
@@ -104,8 +119,8 @@ export default class Node extends Component<Props, State> {
                 y: nextProps.y,
                 scale: nextProps.scale,
                 label: nextProps.label,
-                width: nextProps.width || Node.defaultProps.width,
-                height: nextProps.height || Node.defaultProps.height,
+                width: width || Node.defaultProps.width,
+                height: height || Node.defaultProps.height,
             });
         }
 
@@ -150,12 +165,13 @@ export default class Node extends Component<Props, State> {
     }
 
     toJSON(): NodeJsonType {
-        const {id, label, x, y} = this.state;
+        const {id, label, x, y, width, height} = this.state;
 
         return {
             id,
             label,
             position: {x, y},
+            size: {width, height},
         };
     }
 
@@ -240,15 +256,22 @@ export default class Node extends Component<Props, State> {
         );
     }
 
-    renderContainer() {
+    renderContainer({isDragging, content}) {
+        const {width, height} = this.state;
+        const className = `${styles.container} ${isDragging ? styles.container_dragging_yes : ''}`;
 
+        return (
+            <div style={{width, height}} className={className}>
+                { Boolean(content) && this.renderContent(content) }
+            </div>
+        );
     }
 
     renderContent(label: string) {
         return (
             <div
-                ref={(element) => { this.labelEl = element }}
                 className={styles.label}
+                ref={(element) => { this.labelEl = element }}
             >
                 {label}
             </div>
@@ -259,28 +282,18 @@ export default class Node extends Component<Props, State> {
         const {
             x,
             y,
-            width,
-            height,
             label,
             isDragging,
         } = this.state;
 
-        const className = `${styles.root} ${isDragging ? styles.root_dragging_yes : ''}`;
-
         return (
             <div
-                className={className}
-                style={{
-                    left: x,
-                    top: y,
-                    width,
-                    height,
-                    minWidth: 160,
-                }}
+                style={{left: x, top: y}}
+                className={styles.root}
                 ref={(element) => { this.element = element }}
                 onMouseDown={(event: SyntheticMouseEvent<>) => this._onMouseDown(event)}
             >
-                { Boolean(label) && this.renderContent(label) }
+                { this.renderContainer({isDragging, content: label}) }
             </div>
         );
     }

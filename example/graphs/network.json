@@ -1,5 +1,6 @@
 {
     "label": "network",
+    "directed": 1,
     "nodes": [{
         "id": "0",
         "label": "User",
@@ -23,7 +24,7 @@
         }
     }, {
         "id": "3",
-        "label": "Backend",
+        "label": "Backend Java Server With very long name",
         "position": {
             "x": 1936,
             "y": 715

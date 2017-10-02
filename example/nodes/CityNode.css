@@ -1,0 +1,28 @@
+.container {
+    position: relative;
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border: 2px solid #50cbe3;
+    border-radius: 50%;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+}
+
+.container_dragging_yes {
+    width: 20px;
+    height: 20px;
+}
+
+.label {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 20px;
+    color: #fff;
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+}
+
+.container_dragging_yes .label {
+    font-size: 30px;
+}

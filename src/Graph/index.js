@@ -28,6 +28,7 @@ type Props = {
     maxScale: number,
 
     directed: boolean,
+    shouldContainerFitContent: boolean,
     Node: ReactElementRef<typeof Node>,
     Edge: ReactElementRef<typeof Edge>,
 
@@ -45,6 +46,7 @@ type State = {
     maxScale: number,
     scale: number,
 
+    directed: boolean,
     viewOffsetX: number,
     viewOffsetY: number,
     viewOffsetOriginX: number,
@@ -53,6 +55,7 @@ type State = {
     isDragging: boolean,
 };
 
+export {Node, Edge};
 export default class Graph extends Component<Props, State> {
     parentWidth: number;
     svgContainer: ReactElementRef<'svg'>;
@@ -85,6 +88,7 @@ export default class Graph extends Component<Props, State> {
             label: props.json.label,
             nodes: props.json.nodes,
             edges: props.json.edges,
+            directed: props.json.directed || false,
 
             minScale,
             maxScale,
@@ -233,6 +237,7 @@ export default class Graph extends Component<Props, State> {
         this.setState({isDragging: false});
     }
 
+    // TODO: Call Node method
     _getNodesProps() {
         return this.nodeComponents.map(({props}) => ({
             id: props.id,
@@ -251,19 +256,17 @@ export default class Graph extends Component<Props, State> {
     toJSON() {
         return {
             nodes: this.nodeComponents.map(nodeComponent => nodeComponent.toJSON()),
-            edges: this.edgeComponents.map(edgeComponent => edgeComponent.toJSON()),
+            edges: this.state.edges,
         };
     }
 
     renderNode(node: NodeJsonType) {
-        const {renderNode} = this.props;
+        const {Node: CustomNode, shouldContainerFitContent} = this.props;
+        const {width, height} = node.size || {};
         const {scale} = this.state;
+        const NodeComponent = CustomNode || Node;
 
-        if (typeof renderNode === 'function') {
-            return renderNode(node);
-        }
-
-        return (<Node
+        return (<NodeComponent
             scale={scale}
             key={`node_${node.id}`}
             ref={
@@ -274,13 +277,25 @@ export default class Graph extends Component<Props, State> {
             onChange={(nodeJSON: NodeJsonType) => { this._onChange(nodeJSON); }}
             x={node.position ? node.position.x : 0}
             y={node.position ? node.position.y : 0}
+            width={width}
+            height={height}
+            shouldContainerFitContent={shouldContainerFitContent}
             {...node}
         />);
     }
 
     render() {
-        const {width, height, style, directed} = this.props;
-        const {nodes, edges, scale, minScale, viewOffsetX, viewOffsetY, isDragging} = this.state;
+        const {Edge: CustomEdge, width, height, style} = this.props;
+        const {
+            nodes,
+            edges,
+            directed,
+            scale,
+            minScale,
+            viewOffsetX,
+            viewOffsetY,
+            isDragging,
+        } = this.state;
 
         const _edges = edges.map((edge: {source: string, target: string}) => ({
             source: nodes.find(node => node.id === edge.source) || null,

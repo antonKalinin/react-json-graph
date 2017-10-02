@@ -1,10 +1,10 @@
 import components from './components';
-import flights from './flights';
+import cities from './cities';
 import network from './network';
 
 export default {
     components,
+    cities,
     network,
-    flights,
 };
 
