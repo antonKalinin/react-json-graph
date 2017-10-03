@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
-import Graph, {Node} from '../index';
+import Graph, {Node, Edge} from '../index';
 import Links from './Links';
 import Header from './Header';
 import Manager from './Manager';
-import CityNode from './nodes/CityNode';
+import {CityNode, GitNode} from './NodeExtension';
+import {GitEdge} from './EdgeExtension';
 
 import {connect} from 'react-redux';
 
@@ -31,7 +32,21 @@ class App extends Component {
             return CityNode;
         }
 
+        if (graphName === 'git') {
+            return GitNode;
+        }
+
         return Node;
+    }
+
+    getEdge() {
+        const {graphJSON: {label: graphName}} = this.state;
+
+        if (graphName === 'git') {
+            return GitEdge;
+        }
+
+        return Edge;
     }
 
     render() {
@@ -48,14 +63,15 @@ class App extends Component {
                     <Links />
                 </div>
                 <Graph
-                    onChange={(json) => { /* console.log(JSON.stringify(json)); */ }}
+                    onChange={(json) => { console.log(JSON.stringify(json)); }}
                     json={graphJSON}
                     scale={0.5}
                     minScale={0.5}
                     width={width}
                     height={height}
                     Node={this.getNode()}
-                    shouldContainerFitContent={graphName !== 'cities'}
+                    Edge={this.getEdge()}
+                    shouldContainerFitContent={graphName === 'components'}
                 />
             </div>
         );

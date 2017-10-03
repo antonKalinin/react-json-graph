@@ -25,7 +25,10 @@ type Props = {
     label: string,
     width: ?number,
     height: ?number,
+
+    isStatic: boolean,
     shouldContainerFitContent: boolean,
+
     getGraph: () => GraphType,
     onChange: ?(NodeJsonType) => void,
 };
@@ -81,7 +84,6 @@ export default class Node extends Component<Props, State> {
     }
 
     componentDidMount() {
-        console.log(this.props.shouldContainerFitContent)
         if (this.props.shouldContainerFitContent === false) {
             return;
         }
@@ -138,6 +140,10 @@ export default class Node extends Component<Props, State> {
     }
 
     componentDidUpdate(props: Props, state: State) {
+        if (this.props.isStatic) {
+            return;
+        }
+
         if (this.state.isDragging && !state.isDragging) {
             document.addEventListener('mousemove', this._onMouseMove);
             document.addEventListener('mouseup', this._onMouseUp);
@@ -279,6 +285,7 @@ export default class Node extends Component<Props, State> {
     }
 
     render() {
+        const {isStatic} = this.props;
         const {
             x,
             y,
@@ -291,7 +298,7 @@ export default class Node extends Component<Props, State> {
                 style={{left: x, top: y}}
                 className={styles.root}
                 ref={(element) => { this.element = element }}
-                onMouseDown={(event: SyntheticMouseEvent<>) => this._onMouseDown(event)}
+                onMouseDown={(event: SyntheticMouseEvent<>) => !isStatic && this._onMouseDown(event)}
             >
                 { this.renderContainer({isDragging, content: label}) }
             </div>

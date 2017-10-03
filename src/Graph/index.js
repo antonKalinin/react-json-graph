@@ -27,7 +27,6 @@ type Props = {
     minScale: number,
     maxScale: number,
 
-    directed: boolean,
     shouldContainerFitContent: boolean,
     Node: ReactElementRef<typeof Node>,
     Edge: ReactElementRef<typeof Edge>,
@@ -46,7 +45,9 @@ type State = {
     maxScale: number,
     scale: number,
 
-    directed: boolean,
+    isStatic: boolean,
+    isVertical: boolean,
+    isDirected: boolean,
     viewOffsetX: number,
     viewOffsetY: number,
     viewOffsetOriginX: number,
@@ -88,7 +89,9 @@ export default class Graph extends Component<Props, State> {
             label: props.json.label,
             nodes: props.json.nodes,
             edges: props.json.edges,
-            directed: props.json.directed || false,
+            isStatic: props.json.isStatic || false,
+            isVertical: props.json.isVertical || false,
+            isDirected: props.json.isDirected || false,
 
             minScale,
             maxScale,
@@ -263,7 +266,7 @@ export default class Graph extends Component<Props, State> {
     renderNode(node: NodeJsonType) {
         const {Node: CustomNode, shouldContainerFitContent} = this.props;
         const {width, height} = node.size || {};
-        const {scale} = this.state;
+        const {scale, isStatic} = this.state;
         const NodeComponent = CustomNode || Node;
 
         return (<NodeComponent
@@ -279,6 +282,7 @@ export default class Graph extends Component<Props, State> {
             y={node.position ? node.position.y : 0}
             width={width}
             height={height}
+            isStatic={isStatic}
             shouldContainerFitContent={shouldContainerFitContent}
             {...node}
         />);
@@ -289,12 +293,15 @@ export default class Graph extends Component<Props, State> {
         const {
             nodes,
             edges,
-            directed,
+
+            isDirected,
+            isVertical,
+            isDragging,
+
             scale,
             minScale,
             viewOffsetX,
             viewOffsetY,
-            isDragging,
         } = this.state;
 
         const _edges = edges.map((edge: {source: string, target: string}) => ({
@@ -340,11 +347,12 @@ export default class Graph extends Component<Props, State> {
                         className={styles.svg}
                     >
                         {
-                            _edges.map((edge) => (<Edge
+                            _edges.map((edge) => (<CustomEdge
                                 key={`edge_${edge.source.id}_${edge.target.id}`}
                                 source={edge.source}
                                 target={edge.target}
-                                directed={directed || false}
+                                isDirected={isDirected || false}
+                                isVertical={isVertical || false}
                             />))
                         }
                     </svg>

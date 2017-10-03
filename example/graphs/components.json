@@ -1,6 +1,6 @@
 {
     "label": "components",
-    "directed": 1,
+    "isStatic": 1,
     "nodes": [{
         "id": "NSObject",
         "label": "NSObject",

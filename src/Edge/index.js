@@ -6,13 +6,15 @@ import styles from './edge.css';
 import type {NodeJsonType} from '../types';
 
 type Props = {
-    vertical: boolean,
-    directed: boolean,
+    isVertical: boolean,
+    isDirected: boolean,
     source: NodeJsonType,
     target: NodeJsonType,
 };
 
 type State = {
+    isVertical: boolean,
+    isDirected: boolean,
     source: NodeJsonType,
     target: NodeJsonType,
 };
@@ -42,23 +44,17 @@ class Edge extends PureComponent<Props, State> {
             currNode.position.y !== nextNode.position.y;
     }
 
-    static isNodeSizeChanged(currNode, nextNode) {
-        if (!currNode.size && !nextNode.size) {
-            return false;
-        }
-
-        if ((!currNode.size && nextNode.size) || (currNode.size && !nextNode.size)) {
-            return true;
-        }
-
-        return currNode.size.width !== nextNode.size.width ||
-            currNode.size.height !== nextNode.size.height;
+    static isNodeSizeChanged({size: currSize = {}}, {size: nextSize = {}}) {
+        return currSize.width !== nextSize.width ||
+            currSize.height !== nextSize.height;
     }
 
     constructor(props: Props) {
         super(props);
 
         this.state = {
+            isVertical: props.isVertical,
+            isDirected: props.isDirected,
             source: props.source,
             target: props.target,
         };
@@ -89,7 +85,7 @@ class Edge extends PureComponent<Props, State> {
     }
 
     getPath(sourcePoint: Point, targetPoint: Point) {
-        if (this.props.vertical) {
+        if (this.state.isVertical) {
             return Edge.vertiacalLinkPath(sourcePoint, targetPoint);
         }
 
@@ -97,7 +93,7 @@ class Edge extends PureComponent<Props, State> {
     }
 
     getJointPoint(node: NodeJsonType) {
-        const {directed, vertical} = this.props;
+        const {isDirected, isVertical} = this.state;
         const {source, target} = this.props;
 
         const point = {
@@ -107,36 +103,41 @@ class Edge extends PureComponent<Props, State> {
 
         const {width = 0, height = 0} = node.size || {};
 
-        if (directed) {
-            if (node.id === source.id) {
-                point.x = node.position.x + width;
-                point.y = node.position.y + (height / 2);
-            } else {
-                point.y = node.position.y + (height / 2);
+        if (isVertical) {
+            if (isDirected) {
+                if (node.id === source.id) {
+                    point.x = node.position.x + (width / 2);
+                    point.y = node.position.y + height;
+                } else {
+                    point.x = node.position.x + (width / 2);
+                }
             }
-
-            return point;
-        }
-
-        if (node.id === source.id) {
-            if (node.position.x + (width / 2) < target.position.x) {
-                point.x = node.position.x + width;
-                point.y = node.position.y + (height / 2);
-            } else {
-                point.y = node.position.y + (height / 2);
-            }
-
-            return point;
-        }
-
-        if (node.position.x + (width / 2) < source.position.x) {
-            point.x = node.position.x + width;
-            point.y = node.position.y + (height / 2);
         } else {
-            point.y = node.position.y + (height / 2);
-        }
+            if (isDirected) {
+                if (node.id === source.id) {
+                    point.x = node.position.x + width;
+                    point.y = node.position.y + (height / 2);
+                } else {
+                    point.y = node.position.y + (height / 2);
+                }
+            } else if (node.id === source.id) {
+                if (node.position.x + (width / 2) < target.position.x) {
+                    point.x = node.position.x + width;
+                    point.y = node.position.y + (height / 2);
+                } else {
+                    point.y = node.position.y + (height / 2);
+                }
 
-        // TODO: write logic for vertical cases
+                return point;
+            } else {
+                if (node.position.x + (width / 2) < source.position.x) {
+                    point.x = node.position.x + width;
+                    point.y = node.position.y + (height / 2);
+                } else {
+                    point.y = node.position.y + (height / 2);
+                }
+            }
+        }
 
         return point;
     }
@@ -151,7 +152,14 @@ class Edge extends PureComponent<Props, State> {
     }
 
     renderPath(path: string) {
-        return (<path className={styles.root} d={path} />);
+        const {source, target} = this.state;
+        let customStyles = {};
+
+        if (typeof this.getStyles === 'function') {
+            customStyles = this.getStyles(source, target) || {};
+        }
+
+        return (<path className={styles.root} style={customStyles} d={path} />);
     }
 
     render() {
