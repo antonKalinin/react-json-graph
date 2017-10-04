@@ -1,7 +1,7 @@
 {
   "name": "react-json-graph",
   "description": "React Component for rendering graphs in JSON Graph Format",
-  "version": "1.2.2",
+  "version": "2.0.0",
   "author": "antonKalinin <hurricanebox@gmail.com>",
   "license": "MIT",
   "repository": "antonKalinin/react-json-graph",
@@ -63,6 +63,7 @@
     "build": "webpack --config webpack.config.js",
     "build-example": "webpack --config webpack.example.config.js",
     "start": "webpack --watch --config webpack.dev.config.js",
+    "release": "npm run build && npm publish",
     "release-patch": "npm run build && npm version patch && npm publish",
     "release-minor": "npm run build && npm version minor && npm publish",
     "release-pages": "npm run build-example && gh-pages -d dist",
