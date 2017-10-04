@@ -1,10 +1,10 @@
 import components from './components';
-import flights from './flights';
-import network from './network';
+import cities from './cities';
+import git from './git';
 
 export default {
     components,
-    network,
-    flights,
+    cities,
+    git,
 };
 

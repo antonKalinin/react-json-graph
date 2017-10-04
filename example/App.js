@@ -1,11 +1,12 @@
-import React, {Component, PropTypes} from 'react';
-import Graph from '../index';
+import React, {Component} from 'react';
+import Graph, {Node, Edge} from '../index';
 import Links from './Links';
 import Header from './Header';
 import Manager from './Manager';
+import {CityNode, GitNode} from './NodeExtension';
+import {GitEdge} from './EdgeExtension';
 
 import {connect} from 'react-redux';
-
 
 class App extends Component {
     constructor(props) {
@@ -24,10 +25,35 @@ class App extends Component {
         }
     }
 
+    getNode() {
+        const {graphJSON: {label: graphName}} = this.state;
+
+        if (graphName === 'cities') {
+            return CityNode;
+        }
+
+        if (graphName === 'git') {
+            return GitNode;
+        }
+
+        return Node;
+    }
+
+    getEdge() {
+        const {graphJSON: {label: graphName}} = this.state;
+
+        if (graphName === 'git') {
+            return GitEdge;
+        }
+
+        return Edge;
+    }
+
     render() {
         const {graphJSON} = this.state;
         const width = document.body.clientWidth;
         const height = document.body.clientHeight;
+        const graphName = graphJSON.label;
 
         return (
             <div className='dotted'>
@@ -43,15 +69,14 @@ class App extends Component {
                     minScale={0.5}
                     width={width}
                     height={height}
+                    Node={this.getNode()}
+                    Edge={this.getEdge()}
+                    shouldContainerFitContent={graphName === 'components'}
                 />
             </div>
         );
     }
 }
-
-App.propTypes = {
-    graphJSON: PropTypes.object,
-};
 
 export default connect(state => ({
     graphJSON: state.graphJSON,

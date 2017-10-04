@@ -1,5 +1,7 @@
-/* @flow */
-/* global document MouseEvent SyntheticMouseEvent HTMLDivElement */
+/*
+    @flow
+    global document MouseEvent SyntheticMouseEvent HTMLDivElement
+*/
 
 import React, {Component} from 'react';
 import type {Node as ReactNode, ElementRef as ReactElementRef} from 'react';
@@ -24,6 +26,9 @@ type Props = {
     width: ?number,
     height: ?number,
 
+    isStatic: boolean,
+    shouldContainerFitContent: boolean,
+
     getGraph: () => GraphType,
     onChange: ?(NodeJsonType) => void,
 };
@@ -36,11 +41,6 @@ type State = {
     label: string,
     width: number,
     height: number,
-
-    edges: {
-        input: Array<ReactElementRef<typeof Edge>>,
-        output: Array<ReactElementRef<typeof Edge>>,
-    },
     isDragging: boolean,
     isCompactView: boolean,
 };
@@ -67,20 +67,14 @@ export default class Node extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
 
-        this.id = props.id;
-
         this.state = {
             id: props.id,
             x: props.x,
             y: props.y,
             scale: props.scale,
             label: props.label,
-            width: props.width || Node.defaultProps.width,
-            height: props.height || Node.defaultProps.height,
-            edges: {
-                input: [],
-                output: [],
-            },
+            width: props.width,
+            height: props.height,
             isDragging: false,
             isCompactView: true,
         };
@@ -90,39 +84,66 @@ export default class Node extends Component<Props, State> {
     }
 
     componentDidMount() {
-        const {width} = this.state;
-        const labelWidth = this.labelEl ? this.labelEl.clientWidth : 0;
+        if (this.props.shouldContainerFitContent === false) {
+            return;
+        }
+
+        const nextState = {};
+        const {width, height} = this.state;
+        const {clientWidth: labelWidth = 0, clientHeight: labelHeight = 0} = this.labelEl || {};
 
         if (width - 30 < labelWidth) {
-            this.setState({width: labelWidth + 30});
+            nextState.width = labelWidth + 30;
+        }
+
+        if (height - 20 < labelWidth) {
+            nextState.height = labelHeight + 20;
+        }
+
+        if (Object.keys(nextState).length > 0) {
+            this.setState(nextState);
         }
     }
 
     componentWillReceiveProps(nextProps: Props) {
         const {scale, label} = this.state;
+        const {width, height} = nextProps.size || {};
+        const nextState = {};
 
         if (nextProps.scale && nextProps.scale !== scale) {
-            this.setState({scale: nextProps.scale});
+            nextState.scale = nextProps.scale;
         }
 
         if (nextProps.label !== label) {
-            this.setState({
+            Object.assign(nextState, {
                 id: nextProps.id,
                 x: nextProps.x,
                 y: nextProps.y,
                 scale: nextProps.scale,
                 label: nextProps.label,
-                width: nextProps.width || Node.defaultProps.width,
-                height: nextProps.height || Node.defaultProps.height,
-                edges: {
-                    input: [],
-                    output: [],
-                },
+                width: width || Node.defaultProps.width,
+                height: height || Node.defaultProps.height,
             });
+        }
+
+        if (Object.keys(nextState).length > 0) {
+            this.setState(nextState);
         }
     }
 
+    shouldComponentUpdate(nextProps: Props, nextState: State) {
+        const {x, y, width, height, isDragging} = this.state;
+
+        return isDragging !== nextState.isDragging ||
+            x !== nextState.x || y !== nextState.y ||
+            width !== nextState.width || height !== nextState.height;
+    }
+
     componentDidUpdate(props: Props, state: State) {
+        if (this.props.isStatic) {
+            return;
+        }
+
         if (this.state.isDragging && !state.isDragging) {
             document.addEventListener('mousemove', this._onMouseMove);
             document.addEventListener('mouseup', this._onMouseUp);
@@ -149,46 +170,14 @@ export default class Node extends Component<Props, State> {
         };
     }
 
-    getPosition() {
-        const {x, y} = this.state;
-
-        return {x, y};
-    }
-
-    getSize() {
-        const {width, height} = this.state;
-
-        return {width, height};
-    }
-
-    addEdge(type: string, edge: ReactElementRef<typeof Edge>) {
-        const {edges} = this.state;
-        let isCompactView = this.state.isCompactView;
-
-        if (type === 'input' && typeof edge.targetId !== 'string') {
-            isCompactView = false;
-        }
-
-        if (type === 'output' && typeof edge.sourceId !== 'string') {
-            isCompactView = false;
-        }
-
-        if (isCompactView !== this.state.isCompactView) {
-            this.setState({isCompactView});
-        }
-
-        edges[type] = edges[type].concat(edge);
-
-        this.setState({edges});
-    }
-
     toJSON(): NodeJsonType {
-        const {id, label, x, y} = this.state;
+        const {id, label, x, y, width, height} = this.state;
 
         return {
             id,
             label,
             position: {x, y},
+            size: {width, height},
         };
     }
 
@@ -219,6 +208,7 @@ export default class Node extends Component<Props, State> {
 
     _onMouseMove(event: MouseEvent) {
         const graph = this.getGraph();
+        const {onChange} = this.props;
         const {x, y, width, height, scale, isDragging} = this.state;
 
         if (!isDragging || !graph) return;
@@ -232,24 +222,19 @@ export default class Node extends Component<Props, State> {
             return;
         }
 
-        this.setState({x: nextX, y: nextY});
-        this.moveEdges();
+        const nextState = {x: nextX, y: nextY};
+
+        this.setState(nextState, () => {
+            if (typeof onChange === 'function') {
+                onChange(this.toJSON());
+            }
+        });
 
         event.stopPropagation();
         event.preventDefault();
     }
 
-    moveEdges() {
-        const {edges} = this.state;
-
-        edges.input.forEach((edge) => {
-            edge.redraw();
-        });
-
-        edges.output.forEach((edge) => {
-            edge.redraw();
-        });
-    }
+    /* Render Methods */
 
     renderJoint(type: string, edge: ReactElementRef<typeof Edge>): ReactNode {
         const className = type === 'input' ? styles.edgeJoint_input : styles.edgeJoint_ouput;
@@ -277,58 +262,45 @@ export default class Node extends Component<Props, State> {
         );
     }
 
+    renderContainer({isDragging, content}) {
+        const {width, height} = this.state;
+        const className = `${styles.container} ${isDragging ? styles.container_dragging_yes : ''}`;
+
+        return (
+            <div style={{width, height}} className={className}>
+                { Boolean(content) && this.renderContent(content) }
+            </div>
+        );
+    }
+
+    renderContent(label: string) {
+        return (
+            <div
+                className={styles.label}
+                ref={(element) => { this.labelEl = element }}
+            >
+                {label}
+            </div>
+        );
+    }
+
     render() {
+        const {isStatic} = this.props;
         const {
             x,
             y,
-            width,
-            height,
             label,
-            edges,
             isDragging,
-            isCompactView,
         } = this.state;
-
-        const className = `${styles.root} ${isDragging ? styles.root_dragging_yes : ''}`;
-
-        let inputs = edges.input;
-        let outputs = edges.output;
-
-        if (isCompactView) {
-            inputs = inputs.slice(0, 1);
-            outputs = outputs.slice(0, 1);
-        }
 
         return (
             <div
-                className={className}
-                style={{
-                    left: x,
-                    top: y,
-                    width,
-                    height,
-                }}
-                onMouseDown={(event: SyntheticMouseEvent<>) => this._onMouseDown(event)}
+                style={{left: x, top: y}}
+                className={styles.root}
+                ref={(element) => { this.element = element }}
+                onMouseDown={(event: SyntheticMouseEvent<>) => !isStatic && this._onMouseDown(event)}
             >
-                {!isCompactView && Boolean(label) &&
-                    <div className={styles.label}>{label}</div>
-                }
-                <div className={styles.interfacesWrap}>
-                    <div className={styles.interfaces}>
-                        {inputs.map((edge: ReactElementRef<typeof Edge>) => this.renderJoint('input', edge))}
-                    </div>
-                    {isCompactView && Boolean(label) &&
-                        <div
-                            ref={(element) => { this.labelEl = element; }}
-                            className={styles.label}
-                        >
-                            {label}
-                        </div>
-                    }
-                    <div className={styles.interfaces}>
-                        {outputs.map((edge: ReactElementRef<typeof Edge>) => this.renderJoint('output', edge))}
-                    </div>
-                </div>
+                { this.renderContainer({isDragging, content: label}) }
             </div>
         );
     }
