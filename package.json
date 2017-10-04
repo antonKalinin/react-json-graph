@@ -29,6 +29,7 @@
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-react": "^7.3.0",
     "flow-bin": "^0.54.1",
+    "gh-pages": "^1.0.0",
     "node-sass": "^4.5.2",
     "postcss": "^6.0.11",
     "postcss-cssnext": "^3.0.2",
@@ -61,14 +62,10 @@
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "build-example": "webpack --config webpack.example.config.js",
-    "start": "npm run dist && npm run build-dist-watch",
-    "dist": "npm run dist-dir && npm run dist-copy",
-    "dist-dir": "rm -rf dist && mkdir dist",
-    "dist-copy": "cp example/index.html dist/index.html && cp example/styles.css dist/styles.css",
-    "build-dist-watch": "webpack --watch --config webpack.dev.config.js",
+    "start": "webpack --watch --config webpack.dev.config.js",
     "release-patch": "npm run build && npm version patch && npm publish",
     "release-minor": "npm run build && npm version minor && npm publish",
-    "release-gh-pages": "npm run dist && ./gh-pages.sh",
+    "release-pages": "npm run build-example && gh-pages -d dist",
     "flow": "flow || true",
     "flow-coverage": "flow-coverage-report -i 'src/**/*.js' -f node_modules/flow-bin/vendor/flow || true"
   }

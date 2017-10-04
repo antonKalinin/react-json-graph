@@ -1,6 +1,5 @@
 {
     "label": "components",
-    "isStatic": 1,
     "nodes": [{
         "id": "NSObject",
         "label": "NSObject",

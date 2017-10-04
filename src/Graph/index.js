@@ -115,13 +115,14 @@ export default class Graph extends Component<Props, State> {
     }
 
     componentWillReceiveProps(nextProps: Props) {
-        const {label} = this.state;
-
-        if (nextProps.json && nextProps.json.label !== label) {
+        if (nextProps.json && nextProps.json !== this.props.json) {
             this.setState({
                 label: nextProps.json.label,
                 nodes: nextProps.json.nodes,
                 edges: nextProps.json.edges,
+                isStatic: nextProps.json.isStatic || false,
+                isVertical: nextProps.json.isVertical || false,
+                isDirected: nextProps.json.isDirected || false,
             }, () => {
                 this.setState({nodes: this._getNodesProps()});
             });
