@@ -291,6 +291,7 @@ export default class Graph extends Component<Props, State> {
 
     render() {
         const {Edge: CustomEdge, width, height, style} = this.props;
+        const EdgeComponent = CustomEdge || Edge;
         const {
             nodes,
             edges,
@@ -348,7 +349,7 @@ export default class Graph extends Component<Props, State> {
                         className={styles.svg}
                     >
                         {
-                            _edges.map((edge) => (<CustomEdge
+                            _edges.map((edge) => (<EdgeComponent
                                 key={`edge_${edge.source.id}_${edge.target.id}`}
                                 source={edge.source}
                                 target={edge.target}
