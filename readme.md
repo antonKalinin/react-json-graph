@@ -1,12 +1,10 @@
-## React JSON Graph
+![](https://raw.githubusercontent.com/antonKalinin/react-json-graph/master/static/usage_demo.gif)
 
 [![npm version](https://badge.fury.io/js/react-json-graph.svg)](https://badge.fury.io/js/react-json-graph)
 
 React Component for rendering graphs in JSON Graph Format
 
-![](https://raw.githubusercontent.com/antonKalinin/react-json-graph/master/static/usage.gif)
-
-Demo: http://antonkalinin.github.io/react-json-graph/
+#### [Demo](http://antonkalinin.github.io/react-json-graph/)
 
 Inspired by:
 - https://github.com/jsongraph/json-graph-specification
@@ -18,72 +16,117 @@ Inspired by:
 npm install --save react-json-graph
 ```
 
-## Usage
+## Getting Started
 ```jsx
 import Graph from 'react-json-graph';
 
 <Graph
     width={600}
     height={400}
-    json={{nodes: [...], edges: [...]}}
+    json={{
+        nodes: [{
+            id: '0',
+            label: 'Alice',
+            position: {x: 150, y: 250},
+        },
+        {
+            id: '1',
+            label: 'Bob',
+            position: {x: 350, y: 350},
+        }],
+        edges: [{
+            source: '0',
+            target: '1'
+        }]
+    }}
     onChange={(newGraphJSON) => {}}
 />
 ```
 
-#### Props
-
-- `width: Number` (**required**) width of the graph
-
-- `height: Number` (**required**) height of the graph, required
-
-- `json: Object` graph representation in JSON with two keys: `nodes` and `edges`. See example below.
-
-- `scale: Number` (default: **1**) current scale of graph
-
-- `minScale: Number` (default: **1**) minimum value of scale, for now can not be less then **0.3**
-
-- `maxScale: Number` (default: **1**)  maximum value of scale, for now can not be greater then **1**
-
-- `style: Object` styles of graph (styles for nodes and edges will be added in future)
-
-- `onChange: Function` calls when graph structure or node position has been changed, accepts new graph JSON as only parameter
-
-
-### Example of JSON
+#### Graph Component Properties
 
 ```js
 {
-    nodes: [{
-        id: '0',
-        label: 'User',
-        position: {x: 150, y: 250},
+    /* Required Props */
+    width: Number, // required, width of the graph
+    height: Number, // required, height of the graph
+    json: {
+        nodes: [
+            {
+                id: String,
+                label: String, // string content of the node
+                position: {
+                    x: Number,
+                    y: Number,
+                },
+                // Optional
+                size: {
+                    width: Number, // width of the node
+                    height: Number, // height of the node
+                },
+            },
+        ],
+        edges: [
+            {
+                source: String, // id of the source node
+                target: String, // id of the target node
+            },
+        ],
+
+        // Optional
+        isStatic: Boolean, // if true, can't change nodes position by dragging
+        isVertical: Boolean, // if true, all edges draw for vertical graph
+        isDirected: Boolean, // if false, edges will change connection position depending on source and target nodes position relative to each other
     },
-    {
-        id: '1',
-        label: 'Robot',
-        position: {x: 350, y: 350},
-    },
-    {
-        id: '2',
-        label: 'Frontend',
-        position: {x: 400, y: 150},
-    },
-    {
-        id: '3',
-        label: 'Backend',
-        position: {x: 700, y: 250},
-    },
-    {
-        id: '4',
-        label: 'DB',
-        position: {x: 1000, y: 300},
-    }],
-    edges: [
-        {source: '0', target: '2'},
-        {source: '1', target: '3'},
-        {source: '2', target: '3'},
-        {source: '3', target: '4'},
-    ],
+
+    /* Optional Props */
+    scale: Number, // default is 1, current scale of graph
+    minScale: Number, // default is 1, minimum value of scale, for now can not be less then 0.3
+    maxScale: Number, // default is 1, maximum value of scale, for now can not be greater then 1
+
+    onChange: (updatedJSON) => {}, // calls when graph structure or node position has been changed, accepts new graph JSON as only parameter
+
+    Node: React.Component, // React.Component inherited from Node that customize node appearence
+    Edge: React.Component, // React.Component inherited from Edge that customize edge appearence
+
+    shouldNodeFitContent: Boolean, // if true, node will try to resize to fit content
+}
+```
+
+### Custom Nodes and Edges
+
+![](https://raw.githubusercontent.com/antonKalinin/react-json-graph/master/static/git_demo.gif)
+
+
+```jsx
+import {Node, Edge} from 'react-json-graph';
+
+class GitNode extends Node {
+    renderContainer({content, isDragging}) {
+        const className = `Node ${isDragging ? 'Node_dragging_yes' : ''}`;
+
+        return (
+            <div className={className}>
+                <div className='Node__label'>{content}</div>
+            </div>
+        );
+    }
+}
+
+class GitEdge extends Edge {
+    getStyles(source, target) {
+        if (parseInt(target.id) === 3) {
+            return {stroke: '#FF5733'};
+        }
+
+        if (parseInt(target.id)  > 5) {
+            if (parseInt(source.id) ===5 && parseInt(target.id) === 9) {
+                return null;
+            }
+
+            return {stroke: '#000'};
+        }
+    }
 }
 ```
 

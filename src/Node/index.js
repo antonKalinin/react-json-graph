@@ -27,7 +27,7 @@ type Props = {
     height: ?number,
 
     isStatic: boolean,
-    shouldContainerFitContent: boolean,
+    shouldFitContent: boolean,
 
     getGraph: () => GraphType,
     onChange: ?(NodeJsonType) => void,
@@ -84,7 +84,7 @@ export default class Node extends Component<Props, State> {
     }
 
     componentDidMount() {
-        if (this.props.shouldContainerFitContent === false) {
+        if (this.props.shouldFitContent === false) {
             return;
         }
 

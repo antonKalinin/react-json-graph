@@ -27,7 +27,7 @@ type Props = {
     minScale: number,
     maxScale: number,
 
-    shouldContainerFitContent: boolean,
+    shouldNodeFitContent: boolean,
     Node: ReactElementRef<typeof Node>,
     Edge: ReactElementRef<typeof Edge>,
 
@@ -265,7 +265,7 @@ export default class Graph extends Component<Props, State> {
     }
 
     renderNode(node: NodeJsonType) {
-        const {Node: CustomNode, shouldContainerFitContent} = this.props;
+        const {Node: CustomNode, shouldNodeFitContent} = this.props;
         const {width, height} = node.size || {};
         const {scale, isStatic} = this.state;
         const NodeComponent = CustomNode || Node;
@@ -284,7 +284,7 @@ export default class Graph extends Component<Props, State> {
             width={width}
             height={height}
             isStatic={isStatic}
-            shouldContainerFitContent={shouldContainerFitContent}
+            shouldFitContent={shouldNodeFitContent}
             {...node}
         />);
     }
