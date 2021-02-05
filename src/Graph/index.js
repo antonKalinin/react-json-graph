@@ -355,6 +355,7 @@ export default class Graph extends Component<Props, State> {
                                 target={edge.target}
                                 isDirected={isDirected || false}
                                 isVertical={isVertical || false}
+                                {...edge}
                             />))
                         }
                     </svg>
